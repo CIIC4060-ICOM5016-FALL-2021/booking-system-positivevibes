@@ -1,13 +1,8 @@
-# pip install Flask
+# pip install Flask flask-cors psycopg2-binary
 from flask import Flask, jsonify, request
-# pip install sqlalchemy, flask_sqlalchemy
-from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ggdbuahlhppdpj:868aecec8547c09e6bf38bccf743ca92bf41ea71b2b490af20f0472a6aee8fff@ec2-54-209-187-69.compute-1.amazonaws.com:5432/d4dtc4du1mree0'
 app.debug = True
-db = SQLAlchemy(app)
 
 @app.route('/test', methods=['GET'])
 def test():
