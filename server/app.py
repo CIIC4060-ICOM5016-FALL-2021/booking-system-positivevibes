@@ -11,7 +11,7 @@ def hello_world():  # put application's code here
 @app.route('/users', methods=['GET'])
 def user_api():
     if request.method == 'GET':
-        return Users.getAllUsers()
+        return Users().getAllUsers()
     else:
         return {
             "error": "No such route"
