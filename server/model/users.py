@@ -15,3 +15,10 @@ class UsersDAO():
         for row in cursor:
             result.append(row)
         return result
+
+    def getUserById(self, user_id):
+        query = "select user_id, first_name, last_name, authorization_level, user_email, user_password from users where user_id = %s"
+        cursor = self.conn.cursor()
+        cursor.execute(query, (user_id,))
+        result = cursor.fetchone()
+        return result
