@@ -1,0 +1,913 @@
+{
+	"info": {
+		"_postman_id": "e1bce2dd-297c-4cef-a018-bddabb845065",
+		"name": "REST API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "/users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/users",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/users",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"first_name\": \"Mario\",\r\n    \"last_name\" : \"Mario\",\r\n    \"authorization_level\" : \"1\",\r\n    \"user_email\" : \"mario.mario@upr.edu\",\r\n    \"user_password\" : \"LuigiSuxs\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/users",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/users",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\" : \"1\",\r\n    \"first_name\": \"Lola\",\r\n    \"last_name\" : \"Maravillosa\",\r\n    \"authorization_level\" : \"0\",\r\n    \"user_email\" : \"lola.maravillosa2@upr.edu\",\r\n    \"user_password\" : \"UniquePassword\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/users",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/users/id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/users/1",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/users/id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/users/1",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User_Unavail",
+			"item": [
+				{
+					"name": "/user_unavailability",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/user_unavailability",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"user_unavailability"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/user_unavailability",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\" : \"2\",\r\n    \"user_start_time\" : \"7:00 AM\",\r\n    \"user_end_time\" : \"3:00 PM\",\r\n    \"user_date\" : \"2021-11-07\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/user_unavailability",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"user_unavailability"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/user_unavailability",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_unavail_id\" : \"\",\r\n    \"user_id\" : \"1\",\r\n    \"user_start_time\" : \"7:00 AM\",\r\n    \"user_end_time\" : \"3:00 PM\",\r\n    \"user_date\" : \"2021-11-06\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/user_unavailability",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"user_unavailability"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/user_unavailability/id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/user_unavailability/3",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"user_unavailability",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/user_unavailability/id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/user_unavailability/3",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"user_unavailability",
+								"3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Buildings",
+			"item": [
+				{
+					"name": "/buildings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/buildings",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"buildings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/buildings",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"building_abbreviation\":\"SH\",\r\n    \"building_name\":\"Sánchez Hidalgo\",\r\n    \"total_rooms\": 100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/buildings",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"buildings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/buildings",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"building_id\": 1,\r\n    \"building_abbreviation\":\"S\",\r\n    \"building_name\":\"Stefani\",\r\n    \"total_rooms\": 350\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/buildings",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"buildings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/buildings/id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/buildings/3",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"buildings",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/buildings/id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/buildings/2",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"buildings",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Rooms",
+			"item": [
+				{
+					"name": "/rooms",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/rooms",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/rooms",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"room_capacity\": \"50\",\r\n    \"authorization_level\": \"1\",\r\n    \"building_id\": \"1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/rooms",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/rooms",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"room_id\": \"1\",\r\n    \"room_capacity\": \"20\",\r\n    \"authorization_level\": \"1\",\r\n    \"building_id\": \"5\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/rooms",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/rooms/id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/rooms/3",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/rooms/id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/rooms/3",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Rooms_Unavail",
+			"item": [
+				{
+					"name": "/room_unavailability",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/room_unavailability",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"room_unavailability"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/room_unavailability",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"room_id\": 2,\r\n    \"room_unavail_id\":3,\r\n    \"room_unavail_date\": \"2021-11-26\",\r\n    \"room_start_time\": \"00:00\",\r\n    \"room_end_time\": \"24:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/room_unavailability",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"room_unavailability"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/room_unavailability",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"room_unavail_id\": \"1\",\r\n    \"room_id\": \"1\",\r\n    \"room_unavail_date\": \"2021-11-05\",\r\n    \"room_start_time\": \"15:40\",\r\n    \"room_end_time\": \"17:40\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/room_unavailability",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"room_unavailability"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/room_unavailability/id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/room_unavailability/4",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"room_unavailability",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/room_unavailability/id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/room_unavailability/5",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"room_unavailability",
+								"5"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Schedules",
+			"item": [
+				{
+					"name": "/schedule",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/schedule",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"schedule"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/schedule",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"schedule_start_time\":\"7:30\",\r\n    \"schedule_end_time\": \"9:00\",\r\n    \"schedule_date\": \"2020-03-19\",\r\n    \"user_id\": 3,\r\n    \"room_id\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/schedule",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"schedule"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/schedule",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"schedule_id\":1,\r\n    \"schedule_start_time\":\"15:30\",\r\n    \"schedule_end_time\": \"20:30:00\",\r\n    \"schedule_date\": \"2020-03-20\",\r\n    \"user_id\": 2,\r\n    \"room_id\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/schedule",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"schedule"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/schedule/id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/schedule/3",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"schedule",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/schedule/id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/schedule/6",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"schedule",
+								"6"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Invitees",
+			"item": [
+				{
+					"name": "/invitee",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/invitee",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"invitee"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/invitee",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\" : \"2\",\r\n    \"schedule_id\" : \"2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/invitee",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"invitee"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/invitee",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"invitee_id\" : \"1\",\r\n    \"user_id\" : \"2\",\r\n    \"schedule_id\" : \"3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/invitee",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"invitee"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/invitee/id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/invitee/1",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"invitee",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/invitee/id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/invitee/2",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"invitee",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TEST",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://posvibes-db.herokuapp.com/",
+					"protocol": "https",
+					"host": [
+						"posvibes-db",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

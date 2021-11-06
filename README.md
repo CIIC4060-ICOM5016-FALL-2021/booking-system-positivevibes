@@ -4,6 +4,8 @@ booking-system-positivevibes created by GitHub Classroom
 ## Diagram links:
 https://miro.com/welcomeonboard/RXlNN2V0TTlWVU0ydDVIWE9GV084WWlKQ1NMN000cVJtZzJIZXdOS1h3Um5JbjZZN0ZieFFKV3VIMDkybVh3bnwzMDc0NDU3MzY1MTkwNzQ1ODcw?invite_link_id=930464750587
 
+## Heroku Hosted REST API link:
+https://posvibes-db.herokuapp.com/
 
 ## Heroku Info
 ### Host `ec2-54-209-187-69.compute-1.amazonaws.com`
