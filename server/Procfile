@@ -1,1 +1,1 @@
-web: gunicorn posvibes-db:app --log-file -
+web: gunicorn wsgi:app --log-file -
