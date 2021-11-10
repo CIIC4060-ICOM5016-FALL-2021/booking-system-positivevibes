@@ -63,10 +63,11 @@ class Schedule:
         schedule_start_time = json['schedule_start_time']
         schedule_end_time = json['schedule_end_time']
         schedule_date = json['schedule_date']
+        invitees = json['invitees']
         user_id = json['user_id']
         room_id = json['room_id']
         dao = ScheduleDAO()
-        schedule_id = dao.insertSchedule(schedule_start_time, schedule_end_time, schedule_date, user_id, room_id)
+        schedule_id = dao.insertSchedule(schedule_start_time, schedule_end_time, schedule_date, invitees, user_id, room_id)
         result = self.build_attr_dict(schedule_id, schedule_start_time, schedule_end_time, schedule_date, user_id, room_id)
         return jsonify(result)
 

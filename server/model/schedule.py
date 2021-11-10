@@ -30,13 +30,20 @@ class ScheduleDAO():
         self.conn.commit()
         return True
 
-    def insertSchedule(self, schedule_start_time, schedule_end_time, schedule_date, user_id, room_id):
+    def insertSchedule(self, schedule_start_time, schedule_end_time, schedule_date, invitees, user_id, room_id):
         cursor = self.conn.cursor()
-        query = "insert into schedule (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id) values (%s, %s, %s, %s, %s) returning schedule_id;"
-        cursor.execute(query, (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id,))
-        schedule_id = cursor.fetchone()[0]
-        self.conn.commit()
-        return schedule_id
+
+        # Verify auth level
+        query = "select count(*) from users natural inner join rooms where room_id=%s and rooms.authorization_level <= (select authorization_level from users where user_id=%s)"
+        cursor.execute(query, (room_id, user_id,))
+        auth_lvl = cursor.fetchone()[0]
+        return auth_lvl
+        
+        # query = "insert into schedule (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id) values (%s, %s, %s, %s, %s) returning schedule_id;"
+        # cursor.execute(query, (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id,))
+        # schedule_id = cursor.fetchone()[0]
+        # self.conn.commit()
+        # return schedule_id
 
     def deleteSchedule(self, schedule_id):
         cursor = self.conn.cursor()
