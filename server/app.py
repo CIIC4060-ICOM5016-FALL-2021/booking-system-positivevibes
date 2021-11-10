@@ -100,6 +100,15 @@ def rooms_route():
             "error": "No such route"
         }
 
+@app.route('/rooms/<int:room_id>/<int:user_id>', methods=['GET'])
+def rooms_auth_route(room_id, user_id):
+    if request.method == 'GET':
+        return Rooms().getRoomWithAuth(room_id, user_id)
+    else:
+        return {
+            "error": "No such route"
+        }
+
 @app.route('/rooms/<int:room_id>', methods=['GET', 'DELETE'])
 def rooms_byid_route(room_id):
     if request.method == 'GET':
