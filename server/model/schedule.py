@@ -33,17 +33,35 @@ class ScheduleDAO():
     def insertSchedule(self, schedule_start_time, schedule_end_time, schedule_date, invitees, user_id, room_id):
         cursor = self.conn.cursor()
 
-        # Verify auth level
-        query = "select count(*) from users natural inner join rooms where room_id=%s and rooms.authorization_level <= (select authorization_level from users where user_id=%s)"
-        cursor.execute(query, (room_id, user_id,))
-        auth_lvl = cursor.fetchone()[0]
-        return auth_lvl
+        # Verify auth level and if time-slot is available
+        start = '{} {}'.format(schedule_date, schedule_start_time)
+        end = '{} {}'.format(schedule_date, schedule_end_time)
+        query = "select count(*) from rooms natural inner join room_unavailability where room_id=%s and rooms.authorization_level <= (select authorization_level from users where user_id=%s) and ( (%s < format(%s, room_unavail_date, room_start_time)) or (%s > format(%s, room_unavail_date, room_end_time)))"
+        cursor.execute(query, (room_id, user_id, end, '%s %s', start, '%s %s',))
+        count = cursor.fetchone()[0]
+
+        # if count is 0, means either auth isnt met or time-slot isn't avaibale
+        if count == 0:
+            return 'error'
         
-        # query = "insert into schedule (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id) values (%s, %s, %s, %s, %s) returning schedule_id;"
-        # cursor.execute(query, (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id,))
-        # schedule_id = cursor.fetchone()[0]
-        # self.conn.commit()
-        # return schedule_id
+        query = "insert into schedule (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id) values (%s, %s, %s, %s, %s) returning schedule_id;"
+        cursor.execute(query, (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id,))
+        schedule_id = cursor.fetchone()[0]
+        self.conn.commit()
+
+        inv_arr = ""
+
+        for x in invitees:
+            inv_arr += "insert into invitee (schedule_id, user_id) values ({}, {}); ".format(schedule_id, x)
+            inv_arr += "insert into user_unavailability (user_id, user_start_time, user_end_time, user_date) values ({}, '{}', '{}', '{}'); ".format(x, schedule_start_time, schedule_end_time, schedule_date)
+
+        add_room_unav = "insert into room_unavailability (room_id, room_unavail_date, room_start_time, room_end_time) values ({}, '{}', '{}', '{}');".format(room_id, schedule_date, schedule_start_time, schedule_end_time)
+
+        query = inv_arr + add_room_unav
+        cursor.execute(query)
+        self.conn.commit()
+        
+        return schedule_id
 
     def deleteSchedule(self, schedule_id):
         cursor = self.conn.cursor()
