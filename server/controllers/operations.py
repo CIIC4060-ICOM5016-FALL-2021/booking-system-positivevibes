@@ -46,6 +46,14 @@ def getMostUsedRoom(self, user_id):
             result.append(self.build_row_dict(t))
         return jsonify(result)
 
+def getMostBookedWithUser(self, user_id):
+        dao = OperationsDAO()
+        tuples = dao.getMostBookedWithUser(self, user_id)
+        result = []
+        for t in tuples:
+            result.append(self.build_row_dict(t))
+        return jsonify(result)
+
 def getBusiestHours(self):
         dao = OperationsDAO()
         tuples = dao.getBusiestHours()
