@@ -68,8 +68,10 @@ class Schedule:
         room_id = json['room_id']
         dao = ScheduleDAO()
         schedule_id = dao.insertSchedule(schedule_start_time, schedule_end_time, schedule_date, invitees, user_id, room_id)
-        if schedule_id == 'error':
-            return jsonify({"error": "Authorization level is not met or time-slot is not available."})
+        if schedule_id == 'unauthorized_access':
+            return jsonify({"error": "Authorization level is not met"})
+        if schedule_id == 'unavailable_timeslot':
+            return jsonify({"error": "Time slot is not available in the specified time."})
         result = self.build_attr_dict(schedule_id, schedule_start_time, schedule_end_time, schedule_date, user_id, room_id)
         return jsonify(result)
 

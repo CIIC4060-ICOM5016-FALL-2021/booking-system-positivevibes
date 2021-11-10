@@ -33,21 +33,23 @@ class ScheduleDAO():
     def insertSchedule(self, schedule_start_time, schedule_end_time, schedule_date, invitees, user_id, room_id):
         cursor = self.conn.cursor()
 
-        # Verify auth level and if time-slot is available
-        start = '{} {}'.format(schedule_date, schedule_start_time)
-        end = '{} {}'.format(schedule_date, schedule_end_time)
-        query = "select count(*) from rooms natural inner join room_unavailability where room_id=%s and rooms.authorization_level <= (select authorization_level from users where user_id=%s) and ( (%s < format(%s, room_unavail_date, room_start_time)) or (%s > format(%s, room_unavail_date, room_end_time)))"
-        cursor.execute(query, (room_id, user_id, end, '%s %s', start, '%s %s',))
+        # Verify auth level
+        query = "select count(*) from rooms where room_id=%s and rooms.authorization_level <= (select authorization_level from users where user_id=%s);"
+        cursor.execute(query, (room_id, user_id,))
         count = cursor.fetchone()[0]
-
-        # if count is 0, means either auth isnt met or time-slot isn't avaibale
-        if count == 0:
-            return 'error'
+        if count == 0: # unauthorized access
+            return "unauthorized_access"
+        
+        # Verify if time slot is available
+        query = "select count(*) from room_unavailability where (room_start_time between %s and %s or room_end_time between %s and %s) and room_unavail_date = %s and room_id=%s;"
+        cursor.execute(query, (schedule_start_time, schedule_end_time, schedule_start_time, schedule_end_time, schedule_date, room_id,))
+        count = cursor.fetchone()[0]
+        if count > 0: # time-slot is taken
+            return "unavailable_timeslot"        
         
         query = "insert into schedule (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id) values (%s, %s, %s, %s, %s) returning schedule_id;"
         cursor.execute(query, (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id,))
         schedule_id = cursor.fetchone()[0]
-        self.conn.commit()
 
         inv_arr = ""
 

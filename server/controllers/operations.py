@@ -6,7 +6,7 @@ from model.schedule import ScheduleDAO
 
 def getAllAvailableRooms(self, room_unavail_date, room_start_time, room_end_time):
         dao = OperationsDAO()
-        tuples = dao.getAllAvailableRooms()
+        tuples = dao.getAllAvailableRooms(self, room_unavail_date, room_start_time, room_end_time)
         result = []
         for t in tuples:
             result.append(self.build_row_dict(t))
@@ -14,7 +14,7 @@ def getAllAvailableRooms(self, room_unavail_date, room_start_time, room_end_time
 
 def whoAppointedRoom(self, room_start_time):
     dao = UsersDAO()
-    tuples = dao.getUserById()
+    tuples = dao.getUserById(self, room_start_time)
     result = []
     for t in tuples:
         result.append(self.build_row_dict(t))
@@ -23,7 +23,7 @@ def whoAppointedRoom(self, room_start_time):
 
 def getRoomAllDaySchedule(self, room_id):
     dao = ScheduleDAO()
-    tuples = dao.getAllSchedules()
+    tuples = dao.getAllSchedules(self, room_id)
     result = []
     for t in tuples:
         result.append(self.build_row_dict(t))
@@ -32,11 +32,19 @@ def getRoomAllDaySchedule(self, room_id):
 
 def getAllDayScheduleforUser(self, user_id):
     dao = ScheduleDAO()
-    tuples = dao.getAllSchedules()
+    tuples = dao.getAllSchedules(self, user_id)
     result = []
     for t in tuples:
         result.append(self.build_row_dict(t))
     return jsonify(result)
+
+def getMostUsedRoom(self, user_id):
+        dao = OperationsDAO()
+        tuples = dao.getMostUsedRoom(self, user_id)
+        result = []
+        for t in tuples:
+            result.append(self.build_row_dict(t))
+        return jsonify(result)
 
 def getBusiestHours(self):
         dao = OperationsDAO()
@@ -61,3 +69,11 @@ def getMostBookedRooms(self):
         for t in tuples:
             result.append(self.build_row_dict(t))
         return jsonify(result)
+
+def findAvailableTimeSlot(self, schedule_start_time, schedule_end_time):
+    dao = OperationsDAO()
+    tuples = dao.findAvailableTimeSlot(self, schedule_start_time, schedule_end_time)
+    result = []
+    for t in tuples:
+        result.append(self.build_row_dict(t))
+    return jsonify(result)
