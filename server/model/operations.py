@@ -65,21 +65,22 @@ class OperationsDAO():
     #a. Most used Room
     def getMostUsedRoom(self, user_id):
         cursor = self.conn.cursor()
-        query = "SELECT room_id FROM schedule where user_id=%s GROUP BY room_id Order BY COUNT (user_id) desc limit 1"
-        cursor.execute(query,(user_id),)
-        result = []
-        for row in cursor:
-            result.append(row)
-        return result
+        query = "select room_id from schedule as s inner join invitee as i on s.schedule_id = i.schedule_id where i.user_id=%s group by room_id order by count (i.user_id) desc limit 1"
+        cursor.execute(query,(user_id,))
+        result = cursor.fetchone()
+        if not result:
+            return 'error'
+        return result[0]
+
     #b. User logged in user has been most booked with
     def getMostBookedWithUser(self, user_id):
         cursor = self.conn.cursor()
-        query = "select i2.user_id, count(*) from invitee as i1 inner join invitee as i2 on i1.schedule_id = i2.schedule_id where i1.user_id = %s and i1.user_id <> i2.user_id group by i2.user_id order by count(*) desc limit 1"
-        cursor.execute(query,(user_id),)
-        result = []
-        for row in cursor:
-            result.append(row)
-        return result
+        query = "select i2.user_id from invitee as i1 inner join invitee as i2 on i1.schedule_id = i2.schedule_id where i1.user_id = %s and i1.user_id <> i2.user_id group by i2.user_id order by count(*) desc limit 1"
+        cursor.execute(query, (user_id,))
+        result = cursor.fetchone()
+        if not result:
+            return 'error'
+        return result[0]
 
     #########13. Global Statistic########
     

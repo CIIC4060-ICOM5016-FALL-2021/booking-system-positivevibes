@@ -60,21 +60,21 @@ class Operations():
         result['Schedule'] = schedule
         return jsonify(result)
 
-    # def getMostUsedRoom(self, user_id):
-    #         dao = OperationsDAO()
-    #         tuples = dao.getMostUsedRoom(self, user_id)
-    #         result = []
-    #         for t in tuples:
-    #             result.append(self.build_row_dict(t))
-    #         return jsonify(result)
+    #12.a Most used Room
+    def getMostUsedRoom(self, user_id):
+        dao = OperationsDAO()
+        room_id = dao.getMostUsedRoom(user_id)
+        if room_id == 'error':
+            return jsonify({"error": "User not found or User has not been in booked rooms."})
+        return jsonify({"most_booked_room": room_id})
 
-    # def getMostBookedWithUser(self, user_id):
-    #         dao = OperationsDAO()
-    #         tuples = dao.getMostBookedWithUser(self, user_id)
-    #         result = []
-    #         for t in tuples:
-    #             result.append(self.build_row_dict(t))
-    #         return jsonify(result)
+    #12b. User logged in user has been most booked with
+    def getMostBookedWithUser(self, user_id):
+        dao = OperationsDAO()
+        u_id = dao.getMostBookedWithUser(user_id)
+        if u_id == 'error':
+            return jsonify({"error": "User not found or User has not been booked with other users."})
+        return jsonify({"most_booked_user": u_id})
 
     # def getBusiestHours(self):
     #         dao = OperationsDAO()

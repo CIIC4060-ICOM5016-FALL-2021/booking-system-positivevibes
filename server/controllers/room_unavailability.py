@@ -73,3 +73,26 @@ class RoomUnavailability:
             return jsonify("DELETED")
         else:
             return jsonify("NOT FOUND")
+
+    def insertRoomUnavailAuth(self, json):
+        user_id = json['user_id']
+        room_id = json['room_id']
+        room_unavail_date = json['room_unavail_date']
+        room_start_time = json['room_start_time']
+        room_end_time = json['room_end_time']
+        dao = RoomsUnavailDao()
+        room_unavail_id = dao.insertRoomUnavailAuth(user_id, room_id, room_unavail_date, room_start_time, room_end_time)
+        if room_unavail_id == 'error':
+            return jsonify({"error": "Authorization level required not met or could not mark time-slot."})
+        result = self.build_attr_dict(room_unavail_id, room_id, room_unavail_date, room_start_time, room_end_time)
+        return jsonify(result)
+
+    def deleteRoomUnavailAuth(self, user_id, room_unavail_id):
+        dao = RoomsUnavailDao()
+        result = dao.deleteRoomUnavailAuth(user_id, room_unavail_id)
+        if result == 'error':
+            return jsonify({"error": "Authorization level required not met."})
+        if result == True:
+            return jsonify("DELETED")
+        else:
+            return jsonify("NOT FOUND")

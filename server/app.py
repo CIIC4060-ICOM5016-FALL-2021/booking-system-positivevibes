@@ -50,6 +50,26 @@ def user_schedule():
             "error": "No such route"
         }
 
+#12.a Most used Room
+@app.route('/users/statistics/<int:user_id>/room', methods=['GET'])
+def user_stat_room(user_id):
+    if request.method == 'GET':
+        return Operations().getMostUsedRoom(user_id)
+    else:
+        return {
+            "error": "No such route"
+        }
+
+#12b. User logged in user has been most booked with
+@app.route('/users/statistics/<int:user_id>/user', methods=['GET'])
+def user_stat_user(user_id):
+    if request.method == 'GET':
+        return Operations().getMostBookedWithUser(user_id)
+    else:
+        return {
+            "error": "No such route"
+        }
+
 @app.route('/schedule', methods=['GET', 'POST', 'PUT'])
 def schedule_route():
     if request.method == 'GET':
@@ -166,7 +186,10 @@ def room_unavail_route():
     if request.method == 'GET':
         return RoomUnavailability().getAllRoomUnavail()
     elif request.method == 'POST':
-        return RoomUnavailability().insertRoomUnavail(request.json)
+        if request.json['user_id']:
+            return RoomUnavailability().insertRoomUnavailAuth(request.json)
+        else:
+            return RoomUnavailability().insertRoomUnavail(request.json)
     elif request.method == 'PUT':
         return RoomUnavailability().updateRoomUnavail(request.json)
     else:
@@ -179,7 +202,11 @@ def room_unavail_byid_route(room_unavail_id):
     if request.method == 'GET':
         return RoomUnavailability().getRoomUnavailById(room_unavail_id)
     elif request.method == 'DELETE':
-        return RoomUnavailability().deleteRoomUnavail(room_unavail_id)
+        if request.json['user_id']:
+            user_id = request.json['user_id']
+            return RoomUnavailability().deleteRoomUnavailAuth(user_id, room_unavail_id)
+        else:
+            return RoomUnavailability().deleteRoomUnavail(room_unavail_id)
     else:
         return {
             "error": "No such route"

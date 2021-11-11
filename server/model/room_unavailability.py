@@ -1,3 +1,6 @@
+from os import curdir
+
+from flask.json import jsonify
 from config.dbconfig import pg_config
 import psycopg2
 
@@ -40,8 +43,29 @@ class RoomsUnavailDao():
 
     def deleteRoomUnavail(self, room_unavail_id):
         cursor = self.conn.cursor()
-        query = "delete from room_unavailability where room_unavail_id=%s"  
+        query = "delete from room_unavailability where room_unavail_id=%s;"  
         cursor.execute(query, (room_unavail_id,))
         affected_rows = cursor.rowcount
         self.conn.commit()
         return affected_rows != 0
+
+    def insertRoomUnavailAuth(self, user_id, room_id, room_unavail_date, room_start_time, room_end_time):
+        cursor = self.conn.cursor()
+        # Verify auth
+        query = "select count(*) from users where user_id = %s and authorization_level >= (select authorization_level from rooms where room_id = %s);" 
+        cursor.execute(query, (user_id, room_id,))
+        count = cursor.fetchone()[0]
+        if count == 0:
+            return 'error'
+        return self.insertRoomUnavail(room_id, room_unavail_date, room_start_time, room_end_time)    
+
+    def deleteRoomUnavailAuth(self, user_id, room_unavail_id):
+        cursor = self.conn.cursor()
+        # Verify auth
+        query = "select count(*) from users where user_id = %s and authorization_level >= (select authorization_level from room_unavailability natural inner join rooms where room_unavail_id = %s);" 
+        cursor.execute(query, (user_id, room_unavail_id,))
+        count = cursor.fetchone()[0]
+        if count == 0:
+            return 'error'
+        return self.deleteRoomUnavail(room_unavail_id)
+        
