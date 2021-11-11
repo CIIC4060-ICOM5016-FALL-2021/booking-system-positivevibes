@@ -25,14 +25,31 @@ class RoomsDAO():
 
     def getRoomWithAuth(self, room_id, user_id):
         cursor = self.conn.cursor()
-        query = "select room_id, room_capacity, authorization_level, building_id, room_unavail_id, room_unavail_date, room_start_time, room_end_time from rooms natural inner join room_unavailability where rooms.room_id = %s and rooms.authorization_level <= ( select authorization_level from users where user_id=%s ) group by room_id, room_unavail_id"
+        # Verify auth and if room exists
+        query = "select * from rooms where room_id = %s and rooms.authorization_level <= (select authorization_level from users where user_id=%s);"
         cursor.execute(query, (room_id, user_id,))
-        result = []
-        for row in cursor:
-            result.append(row)
-        if len(result) == 0:
-            return 'error'
-        return result        
+        auth_tuple = cursor.fetchone()
+        if not auth_tuple:
+            return 'error', 'error'
+        
+        # Get room's appointments if any
+        query = "select * from room_unavailability where room_id = %s;"
+        cursor.execute(query, (room_id,))
+        sched_tuples = []
+        for r in cursor:
+            sched_tuples.append(r)
+        
+        return auth_tuple, sched_tuples
+        
+        # cursor = self.conn.cursor()
+        # query = "select room_id, room_capacity, authorization_level, building_id, room_unavail_id, room_unavail_date, room_start_time, room_end_time from rooms natural inner join room_unavailability where rooms.room_id = %s and rooms.authorization_level <= ( select authorization_level from users where user_id=%s ) group by room_id, room_unavail_id"
+        # cursor.execute(query, (room_id, user_id,))
+        # result = []
+        # for row in cursor:
+        #     result.append(row)
+        # if len(result) == 0:
+        #     return 'error'
+        # return result        
 
     def updateRoom(self, room_id, room_capacity, authorization_level, building_id):
         cursor = self.conn.cursor()

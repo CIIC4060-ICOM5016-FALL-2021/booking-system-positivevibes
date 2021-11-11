@@ -7,6 +7,7 @@ from controllers.rooms import Rooms
 from controllers.invitee import Invitee
 from controllers.room_unavailability import RoomUnavailability
 from controllers.user_unavailability import UserUnavailability
+from controllers.operations import Operations
 
 app = Flask(__name__)
 
@@ -34,6 +35,16 @@ def user_byid_route(user_id):
         return Users().getUserById(user_id)
     elif request.method == 'DELETE':
         return Users().deleteUser(user_id)
+    else:
+        return {
+            "error": "No such route"
+        }
+
+#Give an all-day schedule for a user
+@app.route('/users/schedule', methods=['GET'])
+def user_schedule():
+    if request.method == 'GET':
+        return Operations().getAllDayScheduleforUser(request.json)
     else:
         return {
             "error": "No such route"
@@ -115,6 +126,36 @@ def rooms_byid_route(room_id):
         return Rooms().getRoomById(room_id)
     elif request.method == 'DELETE':
         return Rooms().deleteRoom(room_id)
+    else:
+        return {
+            "error": "No such route"
+        }
+
+#Find an available room (lab, classroom, study space, etc.) at a time frame
+@app.route('/rooms/availability', methods=['GET'])
+def rooms_availability():
+    if request.method == 'GET':
+        return Operations().getAllAvailableRooms(request.json)
+    else:
+        return {
+            "error": "No such route"
+        }
+
+#Find who appointed a room at a certain time
+@app.route('/rooms/appointed', methods=['GET'])
+def rooms_appointed():
+    if request.method == 'GET':
+        return Operations().whoAppointedRoom(request.json)
+    else:
+        return {
+            "error": "No such route"
+        }
+
+#Give an all-day schedule for a room
+@app.route('/rooms/schedule', methods=['GET'])
+def rooms_schedule():
+    if request.method == 'GET':
+        return Operations().getRoomAllDaySchedule(request.json)
     else:
         return {
             "error": "No such route"

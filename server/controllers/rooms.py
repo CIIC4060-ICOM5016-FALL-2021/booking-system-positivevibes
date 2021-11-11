@@ -18,20 +18,21 @@ class Rooms:
             }
         return result
 
-    def build_auth_row_dict(self, tuples: tuple):
+    def build_auth_row_dict(self, room: tuple, sched: list[tuple]):
         result = {}
-        result['room_id'] = tuples[0][0]
-        result['room_capacity'] = tuples[0][1]
-        result['authorization_level'] = tuples[0][2]
-        result['building_id'] = tuples[0][3]
+        result['room_id'] = room[0]
+        result['room_capacity'] = room[1]
+        result['authorization_level'] = room[2]
+        result['building_id'] = room[3]
 
         schedule = []
-        for idx in range(0, len(tuples)):
-            schedule.append({
-                'room_unavail_date': str(tuples[idx][5]),
-                'room_start_time': str(tuples[idx][6]),
-                'room_end_time': str(tuples[idx][7])
-            })
+        if len(sched) > 0:
+            for idx in range(0, len(sched)):
+                schedule.append({
+                    'room_unavail_date': str(sched[idx][2]),
+                    'room_start_time': str(sched[idx][3]),
+                    'room_end_time': str(sched[idx][4])
+                })
         
         result['schedule'] = schedule
         return result
@@ -64,11 +65,10 @@ class Rooms:
 
     def getRoomWithAuth(self, room_id, user_id):
         dao = RoomsDAO()
-        tuple = dao.getRoomWithAuth(room_id, user_id)
-        if tuple == 'error':
+        room, sched = dao.getRoomWithAuth(room_id, user_id)
+        if room == 'error':
             return jsonify({"error": "Authorization Level required not met or Room not found."})
-        result = tuple
-        result = self.build_auth_row_dict(result)
+        result = self.build_auth_row_dict(room, sched)
         return jsonify(result)
 
     def updateRoom(self, json):

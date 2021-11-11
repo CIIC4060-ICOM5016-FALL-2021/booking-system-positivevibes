@@ -2,12 +2,15 @@ from config.dbconfig import pg_config
 import psycopg2
 
 class OperationsDAO():
-    
+    def __init__(self) -> None:
+        connection_url = "dbname=%s user=%s password=%s port=%s host=%s" %(pg_config['dbname'], pg_config['user'], pg_config['password'],
+                                                                            pg_config['port'], pg_config['host'])
+        self.conn = psycopg2.connect(connection_url)
     
     #Find an available room (lab, classroom, study space, etc.) at a time frame
     def getAllAvailableRooms(self, room_unavail_date, room_start_time, room_end_time):
         cursor = self.conn.cursor()
-        query = "select room_id from rooms where 0 = (select count(*) from room_unavailability where room_unavailability.room_id = rooms.room_id and room_unavail_date = %s and room_start_time between %s and %s and room_end_time between %s and %s)"
+        query = "select room_id from rooms where 0 = (select count(*) from room_unavailability where room_unavailability.room_id = rooms.room_id and room_unavail_date = %s and (room_start_time between %s and %s or room_end_time between %s and %s))"
         cursor.execute(query, (room_unavail_date, room_start_time, room_end_time, room_start_time, room_end_time),)
         result = []
         for row in cursor:
@@ -15,30 +18,32 @@ class OperationsDAO():
         return result
 
     #Find who appointed a room at a certain time
-    def whoAppointedRoom(self, room_start_time):
+    def whoAppointedRoom(self, room_id, user_id, date, time):
         cursor = self.conn.cursor()
-        query = "select user_id from users natural inner join schedule where schedule_start_time = %s"
-        cursor.execute(query, (room_start_time),)
-        result = []
-        for row in cursor:
-            result.append(row)
-        return result
+        query = "select user_id from schedule as s where room_id = %s and schedule_date = %s and %s between schedule_start_time and schedule_end_time and (select authorization_level from users as u where u.user_id = %s) >= (select authorization_level from rooms as r where r.room_id = %s)"
+        cursor.execute(query, (room_id, date, time, user_id, room_id,))
+        uid = cursor.fetchone()
+        if not uid:
+            return 'error'
+        else:
+            uid = uid[0]
+        return uid
 
     #Give an all-day schedule for a room
-    def getRoomAllDaySchedule(self, room_unavail_date, room_id):
+    def getRoomAllDaySchedule(self, room_id, user_id, room_unavail_date):
         cursor = self.conn.cursor()
-        query = "select room_start_time, room_end_time from room_unavailability where room_id=%s AND room_unavail_date=%s group by room_unavail_date, room_start_time, room_end_time order by room_start_time, room_end_time"
-        cursor.execute(query, (room_id, room_unavail_date),)
+        query = "select room_start_time, room_end_time from room_unavailability where room_id=%s and room_unavail_date=%s and (select authorization_level from users as u where u.user_id = %s) >= (select authorization_level from rooms as r where r.room_id = %s) group by room_unavail_date, room_start_time, room_end_time order by room_start_time, room_end_time"
+        cursor.execute(query, (room_id, room_unavail_date, user_id, room_id))
         result = []
         for row in cursor:
             result.append(row)
         return result
 
     #Give an all-day schedule for a user
-    def getAllDayScheduleforUser(self, user_id):
+    def getAllDayScheduleforUser(self, user_id, user_date):
         cursor = self.conn.cursor()
-        query = "select schedule_id, schedule_start_time, schedule_end_time, room_id from users as U natural inner join schedule as S natural inner join  rooms R where user_id = %s"
-        cursor.execute(query,(user_id),)
+        query = "select user_start_time, user_end_time from user_unavailability where user_id=%s and user_date=%s group by user_date, user_start_time, user_end_time order by user_start_time, user_end_time"
+        cursor.execute(query, (user_id, user_date,))
         result = []
         for row in cursor:
             result.append(row)
