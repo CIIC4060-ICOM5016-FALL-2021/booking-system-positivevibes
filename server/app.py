@@ -12,11 +12,11 @@ from controllers.operations import Operations
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route('/API')
 def hello_world():  # put application's code here
     return 'PosVibesDB!'
 
-@app.route('/users', methods=['GET', 'POST', 'PUT'])
+@app.route('/API/users', methods=['GET', 'POST', 'PUT'])
 def user_route():
     if request.method == 'GET':
         return Users().getAllUsers()
@@ -29,7 +29,7 @@ def user_route():
             "error": "No such route"
         }
 
-@app.route('/users/<int:user_id>', methods=['GET', 'DELETE'])
+@app.route('/API/users/<int:user_id>', methods=['GET', 'DELETE'])
 def user_byid_route(user_id):
     if request.method == 'GET':
         return Users().getUserById(user_id)
@@ -41,7 +41,7 @@ def user_byid_route(user_id):
         }
 
 #Give an all-day schedule for a user
-@app.route('/users/schedule', methods=['GET'])
+@app.route('/API/users/schedule', methods=['GET'])
 def user_schedule():
     if request.method == 'GET':
         return Operations().getAllDayScheduleforUser(request.json)
@@ -51,7 +51,7 @@ def user_schedule():
         }
 
 #12.a Most used Room
-@app.route('/users/statistics/<int:user_id>/room', methods=['GET'])
+@app.route('/API/users/statistics/<int:user_id>/room', methods=['GET'])
 def user_stat_room(user_id):
     if request.method == 'GET':
         return Operations().getMostUsedRoom(user_id)
@@ -61,7 +61,7 @@ def user_stat_room(user_id):
         }
 
 #12b. User logged in user has been most booked with
-@app.route('/users/statistics/<int:user_id>/user', methods=['GET'])
+@app.route('/API/users/statistics/<int:user_id>/user', methods=['GET'])
 def user_stat_user(user_id):
     if request.method == 'GET':
         return Operations().getMostBookedWithUser(user_id)
@@ -70,7 +70,7 @@ def user_stat_user(user_id):
             "error": "No such route"
         }
 
-@app.route('/schedule', methods=['GET', 'POST', 'PUT'])
+@app.route('/API/schedule', methods=['GET', 'POST', 'PUT'])
 def schedule_route():
     if request.method == 'GET':
         return Schedule().getAllSchedules()
@@ -83,7 +83,7 @@ def schedule_route():
             "error": "No such route"
         }
 
-@app.route('/schedule/<int:schedule_id>', methods=['GET', 'DELETE'])
+@app.route('/API/schedule/<int:schedule_id>', methods=['GET', 'DELETE'])
 def schedule_byid_route(schedule_id):
     if request.method == 'GET':
         return Schedule().getScheduleById(schedule_id)
@@ -95,7 +95,7 @@ def schedule_byid_route(schedule_id):
         }
 
 #8. Find a time that is free for everyone in the meeting
-@app.route('/schedule/available', methods=['GET'])
+@app.route('/API/schedule/available', methods=['GET'])
 def schedule_find_timeslots():
     if request.method == 'GET':
         return Operations().findAvailableTimeSlot(request.json)
@@ -104,7 +104,7 @@ def schedule_find_timeslots():
             "error": "No such route"
         }
 
-@app.route('/user_unavailability', methods=['GET', 'POST', 'PUT'])
+@app.route('/API/user_unavailability', methods=['GET', 'POST', 'PUT'])
 def user_unavail_route():
     if request.method == 'GET':
         return UserUnavailability().getAllUnavailableUsers()
@@ -117,7 +117,7 @@ def user_unavail_route():
             "error": "No such route"
         }
 
-@app.route('/user_unavailability/<int:user_unavail_id>', methods=['GET', 'DELETE'])
+@app.route('/API/user_unavailability/<int:user_unavail_id>', methods=['GET', 'DELETE'])
 def user_unavail_byid_route(user_unavail_id):
     if request.method == 'GET':
         return UserUnavailability().getUnavailableUserById(user_unavail_id)
@@ -128,7 +128,7 @@ def user_unavail_byid_route(user_unavail_id):
             "error": "No such route"
         }
 
-@app.route('/rooms', methods=['GET', 'POST', 'PUT'])
+@app.route('/API/rooms', methods=['GET', 'POST', 'PUT'])
 def rooms_route():
     if request.method == 'GET':
         return Rooms().getAllRooms()
@@ -141,7 +141,7 @@ def rooms_route():
             "error": "No such route"
         }
 
-@app.route('/rooms/<int:room_id>/<int:user_id>', methods=['GET'])
+@app.route('/API/rooms/<int:room_id>/<int:user_id>', methods=['GET'])
 def rooms_auth_route(room_id, user_id):
     if request.method == 'GET':
         return Rooms().getRoomWithAuth(room_id, user_id)
@@ -150,7 +150,7 @@ def rooms_auth_route(room_id, user_id):
             "error": "No such route"
         }
 
-@app.route('/rooms/<int:room_id>', methods=['GET', 'DELETE'])
+@app.route('/API/rooms/<int:room_id>', methods=['GET', 'DELETE'])
 def rooms_byid_route(room_id):
     if request.method == 'GET':
         return Rooms().getRoomById(room_id)
@@ -162,7 +162,7 @@ def rooms_byid_route(room_id):
         }
 
 #Find an available room (lab, classroom, study space, etc.) at a time frame
-@app.route('/rooms/availability', methods=['GET'])
+@app.route('/API/rooms/availability', methods=['GET'])
 def rooms_availability():
     if request.method == 'GET':
         return Operations().getAllAvailableRooms(request.json)
@@ -172,7 +172,7 @@ def rooms_availability():
         }
 
 #Find who appointed a room at a certain time
-@app.route('/rooms/appointed', methods=['GET'])
+@app.route('/API/rooms/appointed', methods=['GET'])
 def rooms_appointed():
     if request.method == 'GET':
         return Operations().whoAppointedRoom(request.json)
@@ -182,7 +182,7 @@ def rooms_appointed():
         }
 
 #Give an all-day schedule for a room
-@app.route('/rooms/schedule', methods=['GET'])
+@app.route('/API/rooms/schedule', methods=['GET'])
 def rooms_schedule():
     if request.method == 'GET':
         return Operations().getRoomAllDaySchedule(request.json)
@@ -191,7 +191,7 @@ def rooms_schedule():
             "error": "No such route"
         }
 
-@app.route('/room_unavailability', methods=['GET', 'POST', 'PUT'])
+@app.route('/API/room_unavailability', methods=['GET', 'POST', 'PUT'])
 def room_unavail_route():
     if request.method == 'GET':
         return RoomUnavailability().getAllRoomUnavail()
@@ -207,7 +207,7 @@ def room_unavail_route():
             "error": "No such route"
         }
 
-@app.route('/room_unavailability/<int:room_unavail_id>', methods=['GET', 'DELETE'])
+@app.route('/API/room_unavailability/<int:room_unavail_id>', methods=['GET', 'DELETE'])
 def room_unavail_byid_route(room_unavail_id):
     if request.method == 'GET':
         return RoomUnavailability().getRoomUnavailById(room_unavail_id)
@@ -222,7 +222,7 @@ def room_unavail_byid_route(room_unavail_id):
             "error": "No such route"
         }
 
-@app.route('/buildings', methods=['GET', 'POST', 'PUT'])
+@app.route('/API/buildings', methods=['GET', 'POST', 'PUT'])
 def building_route():
     if request.method == 'GET':
         return Building().getAllBuildings()
@@ -235,7 +235,7 @@ def building_route():
             "error": "No such route"
         }
 
-@app.route('/buildings/<int:building_id>', methods=['GET', 'DELETE'])
+@app.route('/API/buildings/<int:building_id>', methods=['GET', 'DELETE'])
 def building_byid_route(building_id):
     if request.method == 'GET':
         return Building().getBuildingById(building_id)
@@ -246,7 +246,7 @@ def building_byid_route(building_id):
             "error": "404"
         }
 
-@app.route('/invitee', methods=['GET', 'POST', 'PUT'])
+@app.route('/API/invitee', methods=['GET', 'POST', 'PUT'])
 def invitee_route():
     if request.method == 'GET':
         return Invitee().getAllInvitees()
@@ -259,7 +259,7 @@ def invitee_route():
             "error": "No such route"
         }
 
-@app.route('/invitee/<int:invitee_id>', methods=['GET', 'DELETE'])
+@app.route('/API/invitee/<int:invitee_id>', methods=['GET', 'DELETE'])
 def invitee_byid_route(invitee_id):
     if request.method == 'GET':
         return Invitee().getInviteeById(invitee_id)
@@ -271,7 +271,7 @@ def invitee_byid_route(invitee_id):
         }
 
 #13a. Find busiest hours (Find top 5)
-@app.route('/global/statistics/buesiesthours', methods=['GET'])
+@app.route('/API/global/statistics/buesiesthours', methods=['GET'])
 def global_busiesthours():
     if request.method == 'GET':
         return Operations().getBusiestHours()
@@ -281,7 +281,7 @@ def global_busiesthours():
         }
 
 #13b. Find most booked users (Find top 10)
-@app.route('/global/statistics/booked/users', methods=['GET'])
+@app.route('/API/global/statistics/booked/users', methods=['GET'])
 def global_bookedusers():
     if request.method == 'GET':
         return Operations().getMostBookedUsers()
@@ -291,7 +291,7 @@ def global_bookedusers():
         }
 
 #13c. Find most booked rooms (Find top 10)
-@app.route('/global/statistics/booked/rooms', methods=['GET'])
+@app.route('/API/global/statistics/booked/rooms', methods=['GET'])
 def global_bookedrooms():
     if request.method == 'GET':
         return Operations().getMostBookedRooms()
