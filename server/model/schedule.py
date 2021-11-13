@@ -33,6 +33,10 @@ class ScheduleDAO():
     def insertSchedule(self, schedule_start_time, schedule_end_time, schedule_date, invitees, user_id, room_id):
         cursor = self.conn.cursor()
 
+        # Verify if scheduler is in invitees
+        if user_id not in invitees or len(invitees) == 0:
+            return 'missing_invitees'
+
         # Verify auth level
         query = "select count(*) from rooms where room_id=%s and rooms.authorization_level <= (select authorization_level from users where user_id=%s);"
         cursor.execute(query, (room_id, user_id,))

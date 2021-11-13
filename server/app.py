@@ -94,6 +94,16 @@ def schedule_byid_route(schedule_id):
             "error": "No such route"
         }
 
+#8. Find a time that is free for everyone in the meeting
+@app.route('/schedule/available', methods=['GET'])
+def schedule_find_timeslots():
+    if request.method == 'GET':
+        return Operations().findAvailableTimeSlot(request.json)
+    else:
+        return {
+            "error": "No such route"
+        }
+
 @app.route('/user_unavailability', methods=['GET', 'POST', 'PUT'])
 def user_unavail_route():
     if request.method == 'GET':
@@ -260,6 +270,35 @@ def invitee_byid_route(invitee_id):
             "error": "404"
         }
 
+#13a. Find busiest hours (Find top 5)
+@app.route('/global/statistics/buesiesthours', methods=['GET'])
+def global_busiesthours():
+    if request.method == 'GET':
+        return Operations().getBusiestHours()
+    else:
+        return {
+            "error": "No such route"
+        }
+
+#13b. Find most booked users (Find top 10)
+@app.route('/global/statistics/booked/users', methods=['GET'])
+def global_bookedusers():
+    if request.method == 'GET':
+        return Operations().getMostBookedUsers()
+    else:
+        return {
+            "error": "No such route"
+        }
+
+#13c. Find most booked rooms (Find top 10)
+@app.route('/global/statistics/booked/rooms', methods=['GET'])
+def global_bookedrooms():
+    if request.method == 'GET':
+        return Operations().getMostBookedRooms()
+    else:
+        return {
+            "error": "No such route"
+        }
 
 if __name__ == '__main__':
     app.run()
