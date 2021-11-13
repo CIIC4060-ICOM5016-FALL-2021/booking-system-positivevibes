@@ -1,5 +1,6 @@
 from config.dbconfig import pg_config
 import psycopg2
+import time
 
 class ScheduleDAO():
     def __init__(self) -> None:
@@ -30,6 +31,19 @@ class ScheduleDAO():
         self.conn.commit()
         return True
 
+    # Helper function for insert
+    def checkConflict(self, arr: list[tuple], s_time, e_time):
+        conflict = False
+        t_c1 = time.strptime(str(s_time), '%H:%M:%S') # curr start_time
+        t_c2 = time.strptime(str(e_time), '%H:%M:%S') # curr end_time
+        for cmp in arr:
+            t_cmp1 = time.strptime(str(cmp[0]), '%H:%M:%S') # cmp start_time
+            t_cmp2 = time.strptime(str(cmp[1]), '%H:%M:%S') # cmp end_time
+            if (t_c1 >= t_cmp1 and t_c1 < t_cmp2) or (t_c2 > t_cmp1 and t_c2 <= t_cmp2):
+                conflict = True
+                break
+        return conflict
+
     def insertSchedule(self, schedule_start_time, schedule_end_time, schedule_date, invitees, user_id, room_id):
         cursor = self.conn.cursor()
 
@@ -49,24 +63,37 @@ class ScheduleDAO():
         cursor.execute(query, (schedule_start_time, schedule_end_time, schedule_start_time, schedule_end_time, schedule_date, room_id,))
         count = cursor.fetchone()[0]
         if count > 0: # time-slot is taken
-            return "unavailable_timeslot"        
-        
+            return "unavailable_timeslot_room"        
+
+        # Verify if time slot is available for users
+        query = "select user_start_time, user_end_time from user_unavailability where user_date = %s and ("
+        for idx in range(0, len(invitees)):
+            if idx > 0:
+                query += " or user_id = {}".format(invitees[idx])
+            else:
+                query += "user_id = {}".format(invitees[idx])
+        query += ") group by user_start_time, user_end_time"
+        cursor.execute(query, (schedule_date,))
+        unavail_timeslots = []
+        for row in cursor:
+            unavail_timeslots.append(row)
+        if self.checkConflict(unavail_timeslots, schedule_start_time, schedule_end_time):
+            return "unavailable_timeslot_user"
+
+        # All good
         query = "insert into schedule (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id) values (%s, %s, %s, %s, %s) returning schedule_id;"
         cursor.execute(query, (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id,))
         schedule_id = cursor.fetchone()[0]
 
         inv_arr = ""
-
         for x in invitees:
             inv_arr += "insert into invitee (schedule_id, user_id) values ({}, {}); ".format(schedule_id, x)
             inv_arr += "insert into user_unavailability (user_id, user_start_time, user_end_time, user_date) values ({}, '{}', '{}', '{}'); ".format(x, schedule_start_time, schedule_end_time, schedule_date)
-
         add_room_unav = "insert into room_unavailability (room_id, room_unavail_date, room_start_time, room_end_time) values ({}, '{}', '{}', '{}');".format(room_id, schedule_date, schedule_start_time, schedule_end_time)
-
         query = inv_arr + add_room_unav
         cursor.execute(query)
+
         self.conn.commit()
-        
         return schedule_id
 
     def deleteSchedule(self, schedule_id):

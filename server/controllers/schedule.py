@@ -72,8 +72,10 @@ class Schedule:
             return jsonify({"error": "Invitees must contain an id or scheduler's id (user_id) is not present in Invitees"})
         if schedule_id == 'unauthorized_access':
             return jsonify({"error": "Authorization level is not met"})
-        if schedule_id == 'unavailable_timeslot':
-            return jsonify({"error": "Time slot is not available in the specified time."})
+        if schedule_id == 'unavailable_timeslot_room':
+            return jsonify({"error": "Time slot is not available in the specified time for specified room."})
+        if schedule_id == 'unavailable_timeslot_user':
+            return jsonify({"error": "Time slot is not available in the specified time for some or many users."})
         result = self.build_attr_dict(schedule_id, schedule_start_time, schedule_end_time, schedule_date, user_id, room_id)
         return jsonify(result)
 

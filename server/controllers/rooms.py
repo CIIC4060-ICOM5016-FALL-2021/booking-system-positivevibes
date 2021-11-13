@@ -14,7 +14,7 @@ class Rooms:
         else:
             result = {
                 "error": "404",
-                "message": "USER NOT FOUND"
+                "message": "ROOM NOT FOUND"
             }
         return result
 
