@@ -556,7 +556,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"room_id\": 2,\r\n    \"room_unavail_id\":3,\r\n    \"room_unavail_date\": \"2021-11-26\",\r\n    \"room_start_time\": \"00:00\",\r\n    \"room_end_time\": \"24:00\"\r\n}",
+							"raw": "{\r\n    \"room_id\": 2,\r\n    \"room_unavail_date\": \"2021-12-15\",\r\n    \"room_start_time\": \"08:00:00\",\r\n    \"room_end_time\": \"10:00:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -637,7 +637,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "https://posvibes-db.herokuapp.com/API/room_unavailability/5",
+							"raw": "https://posvibes-db.herokuapp.com/API/room_unavailability/71",
 							"protocol": "https",
 							"host": [
 								"posvibes-db",
@@ -647,7 +647,7 @@
 							"path": [
 								"API",
 								"room_unavailability",
-								"5"
+								"71"
 							]
 						}
 					},
@@ -1132,7 +1132,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"user_id\": \"3\",\r\n    \"room_id\": \"2\",\r\n    \"room_unavail_date\": \"2021-11-15\",\r\n    \"room_start_time\": \"16:30:00\",\r\n    \"room_end_time\": \"18:00:00\"\r\n}",
+									"raw": "{\r\n    \"user_id\": \"11\",\r\n    \"room_id\": \"2\",\r\n    \"room_unavail_date\": \"2021-12-15\",\r\n    \"room_start_time\": \"16:30:00\",\r\n    \"room_end_time\": \"18:00:00\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1140,7 +1140,7 @@
 									}
 								},
 								"url": {
-									"raw": "https://posvibes-db.herokuapp.com/API/room_unavailability",
+									"raw": "https://posvibes-db.herokuapp.com/API/room_unavailability/auth",
 									"protocol": "https",
 									"host": [
 										"posvibes-db",
@@ -1149,7 +1149,8 @@
 									],
 									"path": [
 										"API",
-										"room_unavailability"
+										"room_unavailability",
+										"auth"
 									]
 								}
 							},
@@ -1160,17 +1161,8 @@
 							"request": {
 								"method": "DELETE",
 								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"user_id\" : \"3\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
-									"raw": "https://posvibes-db.herokuapp.com/API/room_unavailability/15",
+									"raw": "https://posvibes-db.herokuapp.com/API/room_unavailability/auth/72/11",
 									"protocol": "https",
 									"host": [
 										"posvibes-db",
@@ -1180,7 +1172,9 @@
 									"path": [
 										"API",
 										"room_unavailability",
-										"15"
+										"auth",
+										"72",
+										"11"
 									]
 								}
 							},
