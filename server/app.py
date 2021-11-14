@@ -196,10 +196,7 @@ def room_unavail_route():
     if request.method == 'GET':
         return RoomUnavailability().getAllRoomUnavail()
     elif request.method == 'POST':
-        if request.json['user_id']:
-            return RoomUnavailability().insertRoomUnavailAuth(request.json)
-        else:
-            return RoomUnavailability().insertRoomUnavail(request.json)
+        return RoomUnavailability().insertRoomUnavail(request.json)
     elif request.method == 'PUT':
         return RoomUnavailability().updateRoomUnavail(request.json)
     else:
@@ -212,15 +209,27 @@ def room_unavail_byid_route(room_unavail_id):
     if request.method == 'GET':
         return RoomUnavailability().getRoomUnavailById(room_unavail_id)
     elif request.method == 'DELETE':
-        if request.json['user_id']:
-            user_id = request.json['user_id']
-            return RoomUnavailability().deleteRoomUnavailAuth(user_id, room_unavail_id)
-        else:
-            return RoomUnavailability().deleteRoomUnavail(room_unavail_id)
+        return RoomUnavailability().deleteRoomUnavail(room_unavail_id)
+        #     user_id = request.json['user_id']
+        #     return RoomUnavailability().deleteRoomUnavailAuth(user_id, room_unavail_id)
     else:
         return {
             "error": "No such route"
         }
+
+#10. Mark Unav/Av (with Auth)
+@app.route('/API/room_unavailability/auth', methods=['POST'])
+def room_unavail_auth_insert():
+    if request.method == 'POST':
+        return RoomUnavailability().insertRoomUnavailAuth(request.json)
+    else:
+        return {"error": "No such route"}        
+@app.route('/API/room_unavailability/auth/<int:room_unavail_id>/<int:user_id>', methods=['DELETE'])
+def room_unavail_auth_delete(room_unavail_id, user_id):
+    if request.method == 'DELETE':
+        return RoomUnavailability().deleteRoomUnavailAuth(user_id, room_unavail_id)
+    else:
+        return {"error": "No such route"}
 
 @app.route('/API/buildings', methods=['GET', 'POST', 'PUT'])
 def building_route():
