@@ -10,7 +10,7 @@ class ScheduleDAO():
 
     def getAllSchedules(self):
         cursor = self.conn.cursor()
-        query = "select schedule_id, schedule_start_time, schedule_end_time, schedule_date, user_id, room_id from schedule;"
+        query = "select schedule_id, schedule_start_time, schedule_end_time, schedule_date, user_id, room_id, schedule_name, schedule_ description from schedule;"
         cursor.execute(query)
         result = []
         for row in cursor:
@@ -19,15 +19,15 @@ class ScheduleDAO():
 
     def getScheduleById(self, schedule_id):
         cursor = self.conn.cursor()
-        query = "select schedule_id, schedule_start_time, schedule_end_time, schedule_date, user_id, room_id from schedule where schedule_id=%s;"
+        query = "select schedule_id, schedule_start_time, schedule_end_time, schedule_date, user_id, room_id, schedule_name, schedule_description from schedule where schedule_id=%s;"
         cursor.execute(query, (schedule_id,))
         result = cursor.fetchone()
         return result
 
-    def updateSchedule(self, schedule_id, schedule_start_time, schedule_end_time, schedule_date, user_id, room_id):
+    def updateSchedule(self, schedule_id, schedule_start_time, schedule_end_time, schedule_date, user_id, room_id, schedule_name, schedule_description):
         cursor = self.conn.cursor()
-        query = "update schedule set schedule_start_time=%s, schedule_end_time=%s, schedule_date=%s, user_id=%s, room_id=%s where schedule_id=%s;"
-        cursor.execute(query, (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id, schedule_id))
+        query = "update schedule set schedule_start_time=%s, schedule_end_time=%s, schedule_date=%s, user_id=%s, room_id=%s, schedule_name=%s, schedule_description=%s where schedule_id=%s;"
+        cursor.execute(query, (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id, schedule_name, schedule_description, schedule_id))
         self.conn.commit()
         return True
 
@@ -44,7 +44,7 @@ class ScheduleDAO():
                 break
         return conflict
 
-    def insertSchedule(self, schedule_start_time, schedule_end_time, schedule_date, invitees, user_id, room_id):
+    def insertSchedule(self, schedule_start_time, schedule_end_time, schedule_date, invitees, user_id, room_id, schedule_name, schedule_description):
         cursor = self.conn.cursor()
 
         # Verify if scheduler is in invitees
@@ -81,8 +81,8 @@ class ScheduleDAO():
             return "unavailable_timeslot_user"
 
         # All good
-        query = "insert into schedule (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id) values (%s, %s, %s, %s, %s) returning schedule_id;"
-        cursor.execute(query, (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id,))
+        query = "insert into schedule (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id, schedule_name, schedule_description) values (%s, %s, %s, %s, %s, %s, %s) returning schedule_id;"
+        cursor.execute(query, (schedule_start_time, schedule_end_time, schedule_date, user_id, room_id, schedule_name, schedule_description,))
         schedule_id = cursor.fetchone()[0]
 
         inv_arr = ""

@@ -12,7 +12,10 @@ class Operations():
         tuples = dao.getAllAvailableRooms(room_unavail_date, room_start_time, room_end_time)
         result = []
         for t in tuples:
-            result.append({'room_id': t[0]})
+            result.append({
+                'room_id': t[0],
+                'room_name': t[1]
+                })
         return jsonify(result)
 
     #3. Find who appointed a room at a certain time

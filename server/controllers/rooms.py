@@ -10,6 +10,7 @@ class Rooms:
                 "room_capacity": row[1],
                 "authorization_level": row[2],
                 "building_id": row[3],
+                "room_name": row[4],
             }
         else:
             result = {
@@ -24,6 +25,7 @@ class Rooms:
         result['room_capacity'] = room[1]
         result['authorization_level'] = room[2]
         result['building_id'] = room[3]
+        result['room_name'] = room[4]
 
         schedule = []
         if len(sched) > 0:
@@ -38,12 +40,13 @@ class Rooms:
         return result
 
 
-    def build_attr_dict(self, room_id, room_capacity, authorization_level, building_id):
+    def build_attr_dict(self, room_id, room_capacity, authorization_level, building_id, room_name):
         result = {}
         result['room_id'] = room_id
         result['room_capacity'] = room_capacity
         result['authorization_level'] = authorization_level
         result['building_id'] = building_id
+        result['room_name'] = room_name
         return result
 
     def getAllRooms(self):
@@ -76,18 +79,20 @@ class Rooms:
         room_capacity = json['room_capacity']
         authorization_level = json['authorization_level']
         building_id = json['building_id']
+        room_name = json['room_name']
         dao = RoomsDAO()
-        update_status = dao.updateRoom(room_id, room_capacity, authorization_level, building_id)
-        result = self.build_attr_dict(room_id, room_capacity, authorization_level, building_id)
+        update_status = dao.updateRoom(room_id, room_capacity, authorization_level, building_id, room_name)
+        result = self.build_attr_dict(room_id, room_capacity, authorization_level, building_id, room_name)
         return jsonify(result)
 
     def insertRoom(self, json):
         room_capacity = json['room_capacity']
         authorization_level = json['authorization_level']
         building_id = json['building_id']
+        room_name = json['room_name']
         dao = RoomsDAO()
-        room_id = dao.insertRoom(room_capacity, authorization_level, building_id)
-        result = self.build_attr_dict(room_id, room_capacity, authorization_level, building_id)
+        room_id = dao.insertRoom(room_capacity, authorization_level, building_id, room_name)
+        result = self.build_attr_dict(room_id, room_capacity, authorization_level, building_id, room_name)
         return jsonify(result)
 
     def deleteRoom(self, room_id):

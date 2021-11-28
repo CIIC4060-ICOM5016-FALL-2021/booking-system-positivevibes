@@ -11,7 +11,7 @@ class OperationsDAO():
     #2. Find an available room (lab, classroom, study space, etc.) at a time frame
     def getAllAvailableRooms(self, room_unavail_date, room_start_time, room_end_time):
         cursor = self.conn.cursor()
-        query = "select room_id from rooms where 0 = (select count(*) from room_unavailability where room_unavailability.room_id = rooms.room_id and room_unavail_date = %s and (room_start_time between %s and %s or room_end_time between %s and %s))"
+        query = "select room_id, room_name from rooms where 0 = (select count(*) from room_unavailability where room_unavailability.room_id = rooms.room_id and room_unavail_date = %s and (room_start_time between %s and %s or room_end_time between %s and %s))"
         cursor.execute(query, (room_unavail_date, room_start_time, room_end_time, room_start_time, room_end_time),)
         result = []
         for row in cursor:

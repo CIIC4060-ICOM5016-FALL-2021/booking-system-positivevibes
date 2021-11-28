@@ -9,7 +9,7 @@ class RoomsDAO():
 
     def getAllRooms(self):
         cursor = self.conn.cursor()
-        query = "select room_id, room_capacity, authorization_level, building_id from rooms;"
+        query = "select room_id, room_capacity, authorization_level, building_id, room_name from rooms;"
         cursor.execute(query)
         result = []
         for row in cursor:
@@ -18,7 +18,7 @@ class RoomsDAO():
 
     def getRoomById(self, room_id):
         cursor = self.conn.cursor()
-        query = "select room_id, room_capacity, authorization_level, building_id from rooms where room_id=%s;"
+        query = "select room_id, room_capacity, authorization_level, building_id, room_name from rooms where room_id=%s;"
         cursor.execute(query, (room_id,))
         result = cursor.fetchone()
         return result
@@ -40,28 +40,18 @@ class RoomsDAO():
             sched_tuples.append(r)
         
         return auth_tuple, sched_tuples
-        
-        # cursor = self.conn.cursor()
-        # query = "select room_id, room_capacity, authorization_level, building_id, room_unavail_id, room_unavail_date, room_start_time, room_end_time from rooms natural inner join room_unavailability where rooms.room_id = %s and rooms.authorization_level <= ( select authorization_level from users where user_id=%s ) group by room_id, room_unavail_id"
-        # cursor.execute(query, (room_id, user_id,))
-        # result = []
-        # for row in cursor:
-        #     result.append(row)
-        # if len(result) == 0:
-        #     return 'error'
-        # return result        
 
-    def updateRoom(self, room_id, room_capacity, authorization_level, building_id):
+    def updateRoom(self, room_id, room_capacity, authorization_level, building_id, room_name):
         cursor = self.conn.cursor()
-        query = "update rooms set room_capacity=%s, authorization_level=%s, building_id=%s where room_id=%s;"
-        cursor.execute(query, (room_capacity, authorization_level, building_id, room_id))
+        query = "update rooms set room_capacity=%s, authorization_level=%s, building_id=%s, room_name = %s where room_id=%s;"
+        cursor.execute(query, (room_capacity, authorization_level, building_id, room_name, room_id))
         self.conn.commit()
         return True
 
-    def insertRoom(self, room_capacity, authorization_level, building_id):
+    def insertRoom(self, room_capacity, authorization_level, building_id, room_name):
         cursor = self.conn.cursor()
-        query = "insert into rooms (room_capacity, authorization_level, building_id) values (%s, %s, %s) returning room_id;"
-        cursor.execute(query, (room_capacity, authorization_level, building_id,))
+        query = "insert into rooms (room_capacity, authorization_level, building_id, room_name) values (%s, %s, %s, %s) returning room_id;"
+        cursor.execute(query, (room_capacity, authorization_level, building_id, room_name))
         room_id = cursor.fetchone()[0]
         self.conn.commit()
         return room_id
