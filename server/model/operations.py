@@ -74,100 +74,71 @@ class OperationsDAO():
         else:
             return arr
 
-    def getAvailTimeSlots(self, arr, duration):
+    def getAvailTimeSlots(self, arr):
         def convert_time(time_str):
             date_var = time.strptime(time_str, '%H:%M:%S')
             return date_var
 
-        t_duration = time.strptime(duration, '%H:%M:%S')
-        dh = t_duration.tm_hour
-        dm = t_duration.tm_min
-        ds = t_duration.tm_sec
+        def create_interval(start: time.struct_time, end: time.struct_time):
+            sh = str(start.tm_hour)
+            sh = sh if sh != '0' else '00'
+            sm = str(start.tm_min)
+            sm = sm if sm != '0' else '00'
+            ss = str(start.tm_sec)
+            ss = ss if ss != '0' else '00'
+            s = sh + ':' + sm + ':' + ss
+            eh = str(end.tm_hour)
+            eh = eh if eh != '0' else '00'
+            em = str(end.tm_min)
+            em = em if em != '0' else '00'
+            es = str(end.tm_sec)
+            es = es if es != '0' else '00'
+            e = eh + ':' + em + ':' + es
+            
+            return s + '-' + e
+
+        def firstStartTime(arr):
+            first = convert_time(str(arr[0][0]))
+            for i in range(1, len(arr)):
+                curr = convert_time(str(arr[i][0]))
+                if curr < first:
+                    first = curr
+            return first
+
+        def lastEndTime(arr):
+            last = convert_time(str(arr[0][1]))
+            for i in range(1, len(arr)):
+                curr = convert_time(str(arr[i][1]))
+                if curr > last:
+                    last = curr
+            return last
 
         avail_times = []
 
         for idx in range(0, len(arr)):
+            if idx == 0: # first case
+                first_time = firstStartTime(arr)
+                b = time.strptime('00:00:00', '%H:%M:%S')
+                if b < first_time:
+                    avail_times.append(create_interval(b, first_time))
+
             if idx == len(arr) - 1: # last case
-                t2 = convert_time(str(arr[idx][1])) # get end_time
-                t2h = t2.tm_hour; t2m = t2.tm_min; t2s = t2.tm_sec
-                dsc = ds; dmc = dm; dhc = dh
+                last_time = lastEndTime(arr)
+                ending = time.strptime('23:59:59', '%H:%M:%S')
+                if last_time < ending:
+                    avail_times.append(create_interval(last_time, ending))
 
-                ns = t2s + dsc
-                if ns >= 60:
-                    ns -= 60
-                    dmc += 1
-                
-                nm = t2m + dmc
-                if nm >= 60:
-                    nm -= 60
-                    dhc += 1
-                
-                nh = t2h + dhc
-                if nh >= 24:
-                    print("time goes beyond specifed date")
-                    continue
+            # all cases
+            if idx < len(arr) - 1: # can check with next one
+                curr_e = convert_time(str(arr[idx][1]))
+                next_s = convert_time(str(arr[idx+1][0]))
+                if next_s > curr_e:
+                    avail_times.append(create_interval(curr_e, next_s))
 
-                avail_ts = str(t2h) + ":" + str(t2m) + ":" + str(t2s) + "-" + str(nh) + ":" + str(nm) + ":" + str(ns)
-                avail_times.append(avail_ts)
-
-
-            elif idx > 0: # 1 to len(n) - 2
-                t2 = convert_time(str(arr[idx][1])) # get end_time
-                t2h = t2.tm_hour; t2m = t2.tm_min; t2s = t2.tm_sec
-                dsc = ds; dmc = dm; dhc = dh
-
-                ns = t2s + dsc
-                if ns >= 60:
-                    ns -= 60
-                    dmc += 1
-                
-                nm = t2m + dmc
-                if nm >= 60:
-                    nm -= 60
-                    dhc += 1
-                
-                nh = t2h + dhc
-
-                t3 = convert_time(str(arr[idx+1][0])) # get next start_time
-                t3h = t3.tm_hour; t3m = t3.tm_min; t3s = t3.tm_sec
-                avail_ts = str(t2h) + ":" + str(t2m) + ":" + str(t2s) + "-" + str(nh) + ":" + str(nm) + ":" + str(ns)
-
-                if nh < t3h:
-                    avail_times.append(avail_ts)
-                elif nh == t3h:
-                    if nm < t3m:
-                        avail_times.append(avail_ts)
-                    elif nm == t3m:
-                        if ns < t3s:
-                            avail_times.append(avail_ts)
-
-            else: # first case
-                t = convert_time(str(arr[idx][0])) # get start_time
-                t1h = t.tm_hour; t1m = t.tm_min; t1s = t.tm_sec
-                
-                ns = t1s - ds if t1s >= ds else 60 + t1s - ds
-                if t1s < ds:
-                    t1m -= 1
-
-                nm = t1m - dm if t1m >= dm else 60 + t1m - dm
-                if t1m < dm:
-                    t1h -= 1
-                
-                nh = t1h - dh
-                if nh < 0:
-                    print("time goes before specified date")
-                    continue
-                
-                avail_ts = str(nh) + ":" + str(nm) + ":" + str(ns) + "-" + str(t1h) + ":" + str(t1m) + ":" + str(t1s)
-                avail_times.append(avail_ts)
-
-        if len(avail_times) == 0:
-            print("No available time slots")
-        else:
-            return avail_times
+        return avail_times
 
     # def findAvailableTimeSlot(self, schedule_start_time, schedule_end_time):
-    def findAvailableTimeSlot(self, date, duration, invitees):
+    def findAvailableTimeSlot(self, date, invitees):
         cursor = self.conn.cursor()
 
         # Verify if there are invitees
@@ -191,7 +162,7 @@ class OperationsDAO():
         if len(interval_tuples) == 0:
             return 'all_free'
         
-        return self.getAvailTimeSlots(self.removeBetweens(interval_tuples), duration)
+        return self.getAvailTimeSlots(self.removeBetweens(interval_tuples))
         
 
     #########12. User Statistic########
@@ -199,22 +170,22 @@ class OperationsDAO():
     #a. Most used Room
     def getMostUsedRoom(self, user_id):
         cursor = self.conn.cursor()
-        query = "select room_id from schedule as s inner join invitee as i on s.schedule_id = i.schedule_id where i.user_id=%s group by room_id order by count (i.user_id) desc limit 1"
+        query = "select room_id, count(i.user_id), room_name from schedule as s inner join invitee as i on s.schedule_id = i.schedule_id natural inner join rooms where i.user_id=%s group by room_id, room_name order by count (i.user_id) desc limit 1"
         cursor.execute(query,(user_id,))
         result = cursor.fetchone()
         if not result:
             return 'error'
-        return result[0]
+        return result
 
     #b. User logged in user has been most booked with
     def getMostBookedWithUser(self, user_id):
         cursor = self.conn.cursor()
-        query = "select i2.user_id from invitee as i1 inner join invitee as i2 on i1.schedule_id = i2.schedule_id where i1.user_id = %s and i1.user_id <> i2.user_id group by i2.user_id order by count(*) desc limit 1"
+        query = "select i2.user_id, count(*), u.first_name, u.last_name from invitee as i1 inner join invitee as i2 on i1.schedule_id = i2.schedule_id inner join users as u on u.user_id = i2.user_id where i1.user_id = %s and i1.user_id <> i2.user_id group by i2.user_id, u.first_name, u.last_name order by count(*) desc limit 1"
         cursor.execute(query, (user_id,))
         result = cursor.fetchone()
         if not result:
             return 'error'
-        return result[0]
+        return result
 
     #########13. Global Statistic########
     
@@ -231,7 +202,7 @@ class OperationsDAO():
     #b. Find most booked users (Find top 10)
     def getMostBookedUsers(self):
         cursor = self.conn.cursor()
-        query = "select user_id, count(user_id) from invitee group by user_id order by count(user_id) desc limit 10"
+        query = "select user_id, count(user_id), first_name, last_name from invitee natural inner join users group by user_id, first_name, last_name order by count(user_id) desc limit 10"
         cursor.execute(query,)
         result = []
         for row in cursor:
@@ -241,7 +212,7 @@ class OperationsDAO():
     #c. Find most booked rooms (Find top 10)
     def getMostBookedRooms(self):
         cursor = self.conn.cursor()
-        query = "select room_id, count(room_id) from schedule group by room_id order by count(room_id) desc limit 10"
+        query = "select room_id, count(room_id), room_name from schedule natural inner join rooms group by room_id, room_name order by count(room_id) desc limit 10"
         cursor.execute(query,)
         result = []
         for row in cursor:
