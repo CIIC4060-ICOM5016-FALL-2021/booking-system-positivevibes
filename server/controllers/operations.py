@@ -12,7 +12,10 @@ class Operations():
         tuples = dao.getAllAvailableRooms(room_unavail_date, room_start_time, room_end_time)
         result = []
         for t in tuples:
-            result.append({'room_id': t[0]})
+            result.append({
+                'room_id': t[0],
+                'room_name': t[1]
+                })
         return jsonify(result)
 
     #3. Find who appointed a room at a certain time
@@ -39,7 +42,7 @@ class Operations():
         for t in tuples:
             schedule.append({
                 'room_start_time' : str(t[0]),
-                'room_end_time': str(t[1])
+                'room_end_time' : str(t[1])
             })
         result['Schedule'] = schedule
         return jsonify(result)
@@ -64,31 +67,36 @@ class Operations():
     def findAvailableTimeSlot(self, json):
         dao = OperationsDAO()
         date = json['date']
-        duration = json['duration']
         invitees = json['invitees']
-        intervals = dao.findAvailableTimeSlot(date, duration, invitees)
+        intervals = dao.findAvailableTimeSlot(date, invitees)
         if intervals == 'missing_invitees':
             return jsonify({"error": "Missing invitees, please specify which invitees are in the meeting."})
         if intervals == 'all_free':
-            return jsonify({"available_time_slots": "All day."})
+            return jsonify({"available_time_slots": "00:00:00-23:59:59"})
         result = {"available_time_slots": intervals}
         return jsonify(result)
 
     #12.a Most used Room
     def getMostUsedRoom(self, user_id):
         dao = OperationsDAO()
-        room_id = dao.getMostUsedRoom(user_id)
-        if room_id == 'error':
+        res = dao.getMostUsedRoom(user_id)
+        if res == 'error':
             return jsonify({"error": "User not found or User has not been in booked rooms."})
-        return jsonify({"most_booked_room": room_id})
+        return jsonify({"most_booked_room": res[0],
+                        "count": res[1],
+                        "room_name": res[2]})
 
     #12b. User logged in user has been most booked with
     def getMostBookedWithUser(self, user_id):
         dao = OperationsDAO()
-        u_id = dao.getMostBookedWithUser(user_id)
-        if u_id == 'error':
+        res = dao.getMostBookedWithUser(user_id)
+        if res == 'error':
             return jsonify({"error": "User not found or User has not been booked with other users."})
-        return jsonify({"most_booked_user": u_id})
+        ret = {}
+        ret['most_booked_user_id'] = res[0]
+        ret['count'] = res[1]
+        ret['most_booked_user_name'] = res[2] + ' ' + res[3]
+        return jsonify(ret)
 
     #13a. Find busiest hours (Find top 5)
     def getBusiestHours(self):
@@ -99,7 +107,8 @@ class Operations():
         for t in tuples:
             intervals.append({
                 "schedule_start_time" : str(t[0]),
-                "schedule_end_time" : str(t[1])
+                "schedule_end_time" : str(t[1]),
+                "count" : t[2]
             })
         result['busiest_hours'] = intervals
         return jsonify(result)
@@ -111,7 +120,9 @@ class Operations():
         result = {}
         booked_users = []
         for t in tuples:
-            booked_users.append({"user_id": t[0]})
+            booked_users.append({"user_id": t[0],
+                                "count": t[1],
+                                "user_name": t[2] + ' ' + t[3]})
         result['most_booked_users'] = booked_users
         return jsonify(result)
 
@@ -122,6 +133,8 @@ class Operations():
         result = {}
         rooms = []
         for t in tuples:
-            rooms.append({"room_id": t[0]})
+            rooms.append({"room_id": t[0],
+                          "count": t[1],
+                          "room_name": t[2]})
         result['most_booked_rooms'] = rooms
         return jsonify(result)
