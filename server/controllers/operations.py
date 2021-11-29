@@ -42,7 +42,7 @@ class Operations():
         for t in tuples:
             schedule.append({
                 'room_start_time' : str(t[0]),
-                'room_end_time': str(t[1])
+                'room_end_time' : str(t[1])
             })
         result['Schedule'] = schedule
         return jsonify(result)

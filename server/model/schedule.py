@@ -10,7 +10,7 @@ class ScheduleDAO():
 
     def getAllSchedules(self):
         cursor = self.conn.cursor()
-        query = "select schedule_id, schedule_start_time, schedule_end_time, schedule_date, user_id, room_id, schedule_name, schedule_ description from schedule;"
+        query = "select schedule_id, schedule_start_time, schedule_end_time, schedule_date, user_id, room_id, schedule_name, schedule_description from schedule;"
         cursor.execute(query)
         result = []
         for row in cursor:
