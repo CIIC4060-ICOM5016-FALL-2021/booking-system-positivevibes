@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, make_response
 from flask.json import jsonify
 from controllers.users import Users
 from controllers.building import Building
@@ -19,7 +19,9 @@ def hello_world():  # put application's code here
 @app.route('/API/users', methods=['GET', 'POST', 'PUT'])
 def user_route():
     if request.method == 'GET':
-        return Users().getAllUsers()
+        res = make_response (Users().getAllUsers())
+        res.headers['Access-Control-Allow-Origin'] = '*'
+        return res
     elif request.method == 'POST':
         return Users().insertUser(request.json)
     elif request.method == 'PUT':
