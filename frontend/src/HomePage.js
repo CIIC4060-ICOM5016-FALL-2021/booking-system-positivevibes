@@ -1,7 +1,8 @@
 import React, {Component, useState} from 'react';
 import {Button, Divider, Form, Grid, Header, Modal, Segment, Tab} from 'semantic-ui-react';
+import {Route, Navigate, BrowserRouter, Routes} from 'react-router-dom';
 import CONFIG from './config';
-// import axios from 'axios';
+import axios from 'axios';
 
 
 function HomePage() {
@@ -9,70 +10,71 @@ function HomePage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
-    console.log(open);
+    // console.log(open);
+
+    if (localStorage.getItem('User')) {
+        return(
+            <Navigate to="/UserView"/>
+        )
+    }
 
     const handleChange = (event, newValue) => {
         // setOpen(true);
-        console.log(event.target)
+        // console.log(event.target)
         if (event.target.type == 'email')
             setEmail(newValue)
         else if (event.target.type == 'password')
             setPassword(newValue)
-        
-    }
-
-    const logMe = () => {
-        console.log("Email: ", email.value)
-        console.log("Password: ", password.value)
     }
 
     const login = () => {
-        let body = {
-            "room_id" : "4",
-            "user_id" : "14",
-            "date" : "2021-11-16",
-            "time" : "13:30:00"
+        if (localStorage.getItem('User')) {
+            console.log("User already logged in.")
+            console.log(JSON.parse(localStorage.getItem('User')))
+            return
         }
-        let url = CONFIG.URL+'/rooms'
 
-        console.log(JSON.stringify(body))
-        console.log("URL: ", url)
+        let url = CONFIG.URL+'/users'
 
-        fetch(url, {method: 'GET'})
-        .then((res) => res.json())
-        .then((json) => console.log(json))
+        axios({
+            method: 'GET',
+            url: url
+        })
+        .then((res) => {
+            let data = res.data
 
-        // axios({
-        //     method: 'get',
-        //     url: url,
-        //     headers: {
-        //         "Access-Control-Allow-Origin": '*'
-        //     }
-        // })
+            // we have all users, check if email exists within them
+            for (let i = 0; i < data.length; i++) {
+                if (data[i]['user_email'] == email.value) {
+                    if (data[i]['user_password'] == password.value){
+                        localStorage.setItem('User', JSON.stringify(data[i]))
+                        console.log("Matched: ", data[i])
+                        break
+                    }
+                    else{
+                        console.log("Password doesn't match.")
+                        break
+                    }
+                }
+                if (i == data.length - 1)
+                    console.log("Email not found.")   
+            }
+                
+            if (!localStorage.getItem('User'))
+                console.log("Login failed.")
+            else{
+                console.log("Login successful.")
+                window.location.href = window.location.origin+"/UserView"
+            }
+        })
+        
+    }
 
-        // axios({
-        //     method: 'get',
-        //     url: url,
-        //     headers: {
-        //         "Access-Control-Allow-Origin": true
-        //     }
-        //     // data: JSON.stringify(body)
-        // })
-        // .then((res) => console.log(res))
-
-        // fetch(CONFIG.URL+'/rooms/appointed', {
-        //     method: 'GET',
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify(body)
-        // })
-        // .then((res) => res.json())
-        // .then((json) => {
-        //     console.log(json)
-        // })
-        // let result = response.items()
-        // console.log(response)
+    const redirectMe = () => {
+        // <a href= {window.location.origin+"/UserView"}/>
+        // <meta http-equiv="Refresh" content={"0; url="+window.location.origin+"/UserView"} />
+        // console.log(window.location.origin+"/UserView")
+        window.location.href = window.location.origin+"/UserView"
     }
 
     return (<Segment><Header dividing textAlign="center" size="huge">Welcome to PosVibesDB</Header>
@@ -117,7 +119,7 @@ function HomePage() {
                         </Form>
                     </Grid.Column>
                     <Grid.Column verticalAlign='middle'>
-                        <Button content='Sign up' icon='signup' size='big' onClick={handleChange}/>
+                        <Button content='Sign up' icon='signup' size='big' onClick={redirectMe}/>
                     </Grid.Column>
                 </Grid>
 
