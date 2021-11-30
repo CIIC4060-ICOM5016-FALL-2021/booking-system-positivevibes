@@ -1,7 +1,7 @@
 import React, {Component, useState} from 'react';
 import {Button, Divider, Form, Grid, Header, Modal, Segment, Tab} from 'semantic-ui-react';
 import CONFIG from './config';
-import axios from 'axios';
+// import axios from 'axios';
 
 
 function HomePage() {
@@ -33,18 +33,22 @@ function HomePage() {
             "date" : "2021-11-16",
             "time" : "13:30:00"
         }
-        let url = CONFIG.URL+'/users'
+        let url = CONFIG.URL+'/rooms'
 
         console.log(JSON.stringify(body))
         console.log("URL: ", url)
 
-        axios.get(url,{
-            headers: {
-                "Access-Control-Allow-Origin": true,
-                
-            }
-        })
-        .then((res) => console.log(res))
+        fetch(url, {method: 'GET'})
+        .then((res) => res.json())
+        .then((json) => console.log(json))
+
+        // axios({
+        //     method: 'get',
+        //     url: url,
+        //     headers: {
+        //         "Access-Control-Allow-Origin": '*'
+        //     }
+        // })
 
         // axios({
         //     method: 'get',
