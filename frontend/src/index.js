@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import {Route, Navigate, BrowserRouter, Routes} from 'react-router-dom';
 import HomePage from "./HomePage";
-import BookMeeting from "./BookMeeting";
 import 'semantic-ui-css/semantic.min.css'
 import UserView from "./UserView";
 import Dashboard from "./Dashboard";

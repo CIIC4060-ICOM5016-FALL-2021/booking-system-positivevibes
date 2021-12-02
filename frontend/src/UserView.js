@@ -6,6 +6,7 @@ import {Button, Card, Container, Modal, Tab} from "semantic-ui-react";
 import BookMeeting from "./BookMeeting";
 import Schedule from "./Schedule";
 import LogOut from "./LogOut";
+import UserStats from './UserStats';
 
 function UserView(){
     const [isAuth, setIsAuth] = useState(false)
@@ -34,6 +35,12 @@ function UserView(){
             menuItem: 'Room Management', render: () => <Tab.Pane active={isAuth} renderActiveOnly={true}><BookMeeting/></Tab.Pane>
         })
     
+    panes.push({
+        menuItem: 'User Statistics', render: () => <UserStats/>
+    })
+    panes.push({
+        menuItem: 'Dashboard', render: () => {window.location.href = window.location.origin + '/Dashboard'}
+    })
     panes.push({
         menuItem: 'Log out', render: () => <LogOut/>
     })

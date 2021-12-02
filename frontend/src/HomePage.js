@@ -4,6 +4,7 @@ import {Route, Navigate, BrowserRouter, Routes} from 'react-router-dom';
 import CONFIG from './config';
 import axios from 'axios';
 
+import SignUp from './SignUp';
 
 function HomePage() {
     const [open, setOpen] = useState(false);
@@ -16,6 +17,10 @@ function HomePage() {
         return(
             <Navigate to="/UserView"/>
         )
+    }
+
+    const toggleSignUp = () => {
+        setOpen(!open);
     }
 
     const handleChange = (event, newValue) => {
@@ -79,19 +84,20 @@ function HomePage() {
 
     return (<Segment><Header dividing textAlign="center" size="huge">Welcome to PosVibesDB</Header>
             <Modal
-                centered={false}
+                centered={true}
                 open={open}
                 onClose={() => setOpen(false)}
                 onOpen={() => setOpen(true)}
             >
-                <Modal.Header>Needs changing!</Modal.Header>
+                {/* <Modal.Header>Sign Up Form</Modal.Header> */}
                 <Modal.Content>
-                    <Modal.Description>
+                    <SignUp></SignUp>
+                    {/* <Modal.Description>
                         This is a modal but it serves to show how buttons and functions can be implemented.
-                    </Modal.Description>
+                    </Modal.Description> */}
                 </Modal.Content>
                 <Modal.Actions>
-                    <Button onClick={() => setOpen(false)}>OK</Button>
+                    <Button onClick={() => setOpen(false)}>CLOSE</Button>
                 </Modal.Actions>
             </Modal>
             <Segment placeholder>
@@ -111,7 +117,7 @@ function HomePage() {
                                 icon='lock'
                                 iconPosition='left'
                                 label='Password'
-                                placeholder='•••••'
+                                placeholder='••••••••'
                                 type='password'
                                 onChange={handleChange}
                             />
@@ -119,7 +125,7 @@ function HomePage() {
                         </Form>
                     </Grid.Column>
                     <Grid.Column verticalAlign='middle'>
-                        <Button content='Sign up' icon='signup' size='big' onClick={redirectMe}/>
+                        <Button content='Sign up' icon='signup' size='big' onClick={toggleSignUp}/>
                     </Grid.Column>
                 </Grid>
 

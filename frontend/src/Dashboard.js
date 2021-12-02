@@ -1,30 +1,25 @@
-import React, {Component, useState} from 'react';
-import {Calendar, momentLocalizer, Views } from 'react-big-calendar';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import moment from 'moment';
-import {Button, Card, Container, Modal} from "semantic-ui-react";
-import {Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis} from "recharts";
+import React from 'react';
+import {Tab} from "semantic-ui-react";
 
+import GlobalStats from './GlobalStats';
+import LogOut from './LogOut';
 
-function BookMeeting(){
-    const [data, setData] = useState([{"name": 1, "Counts": 5},
-                                                {"name": 2, "Counts": 4},
-                                                {"name": 3, "Counts": 3},
-                                                {"name": 4, "Counts": 2},
-                                                {"name": 5, "Counts": 1}]);
+function Dashboard(){
+    const panes = [
+        {
+            menuItem: 'Global Statistics', render: () => <GlobalStats/>
+        },
+        {
+            menuItem: 'User View', render: () => {window.location.href = window.location.origin + '/UserView'}
+        },
+        {
+            menuItem: 'Log out', render: () => <LogOut/>
+        }
+    ]
 
-    return <Container style={{ height: 800 }}>
+    panes.push()
 
-        <BarChart width={730} height={250} data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="Counts" fill="#8884d8" />
-        </BarChart>
-    </Container>
-
-
+    return <Tab panes={panes}/>
 }
-export default BookMeeting;
+
+export default Dashboard;
