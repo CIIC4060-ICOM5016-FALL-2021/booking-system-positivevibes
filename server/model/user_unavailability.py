@@ -9,7 +9,7 @@ class UserUnavailabilityDAO():
 
     def getAllUnavailableUsers(self):
         cursor = self.conn.cursor()
-        query = "select user_unavail_id, user_id, user_start_time, user_end_time, user_date from user_unavailability;"
+        query = "select user_unavail_id, user_id, user_start_time, user_end_time, user_date, scheduled from user_unavailability;"
         cursor.execute(query)
         result = []
         for row in cursor:
@@ -18,22 +18,22 @@ class UserUnavailabilityDAO():
 
     def getUnavailableUserById(self, user_unavail_id):
         cursor = self.conn.cursor()
-        query = "select user_unavail_id, user_id, user_start_time, user_end_time, user_date from user_unavailability where user_unavail_id = %s;"
+        query = "select user_unavail_id, user_id, user_start_time, user_end_time, user_date, scheduled from user_unavailability where user_unavail_id = %s;"
         cursor.execute(query, (user_unavail_id,))
         result = cursor.fetchone()
         return result
 
-    def updateUserUnavailability(self, user_unavail_id, user_id, user_start_time, user_end_time, user_date):
+    def updateUserUnavailability(self, user_unavail_id, user_id, user_start_time, user_end_time, user_date, scheduled):
         cursor = self.conn.cursor()
-        query = "update user_unavailability set user_id=%s, user_start_time=%s, user_end_time=%s, user_date=%s where user_unavail_id=%s;"
-        cursor.execute(query, (user_id, user_start_time, user_end_time, user_date, user_unavail_id))
+        query = "update user_unavailability set user_id=%s, user_start_time=%s, user_end_time=%s, user_date=%s, scheduled=%s where user_unavail_id=%s;"
+        cursor.execute(query, (user_id, user_start_time, user_end_time, user_date, scheduled, user_unavail_id,))
         self.conn.commit()
         return True
 
-    def insertUnavailableUser(self, user_id, user_start_time, user_end_time, user_date):
+    def insertUnavailableUser(self, user_id, user_start_time, user_end_time, user_date, scheduled):
         cursor = self.conn.cursor()
-        query = "insert into user_unavailability (user_id, user_start_time, user_end_time, user_date) values (%s, %s, %s, %s) returning user_unavail_id;"
-        cursor.execute(query, (user_id, user_start_time, user_end_time, user_date,))
+        query = "insert into user_unavailability (user_id, user_start_time, user_end_time, user_date, scheduled) values (%s, %s, %s, %s, %s) returning user_unavail_id;"
+        cursor.execute(query, (user_id, user_start_time, user_end_time, user_date, scheduled,))
         user_unavail_id = cursor.fetchone()[0]
         self.conn.commit()
         return user_unavail_id

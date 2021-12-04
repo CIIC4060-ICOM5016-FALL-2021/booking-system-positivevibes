@@ -86,10 +86,13 @@ class ScheduleDAO():
         schedule_id = cursor.fetchone()[0]
 
         inv_arr = ""
+        # Add to invitee and user_unavailability
         for x in invitees:
             inv_arr += "insert into invitee (schedule_id, user_id) values ({}, {}); ".format(schedule_id, x)
-            inv_arr += "insert into user_unavailability (user_id, user_start_time, user_end_time, user_date) values ({}, '{}', '{}', '{}'); ".format(x, schedule_start_time, schedule_end_time, schedule_date)
-        add_room_unav = "insert into room_unavailability (room_id, room_unavail_date, room_start_time, room_end_time) values ({}, '{}', '{}', '{}');".format(room_id, schedule_date, schedule_start_time, schedule_end_time)
+            inv_arr += "insert into user_unavailability (user_id, user_start_time, user_end_time, user_date, scheduled) values ({}, '{}', '{}', '{}', 1); ".format(x, schedule_start_time, schedule_end_time, schedule_date)
+        # Add to room_unavailability
+        add_room_unav = "insert into room_unavailability (room_id, room_unavail_date, room_start_time, room_end_time, scheduled) values ({}, '{}', '{}', '{}', 1);".format(room_id, schedule_date, schedule_start_time, schedule_end_time)
+        
         query = inv_arr + add_room_unav
         cursor.execute(query)
 
