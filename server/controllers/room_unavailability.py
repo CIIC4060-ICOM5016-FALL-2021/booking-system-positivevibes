@@ -11,6 +11,7 @@ class RoomUnavailability:
                 "room_unavail_date": str(row[2]),
                 "room_start_time": str(row[3]),
                 "room_end_time": str(row[4]),
+                "scheduled": row[5]
             }
         else:
             result = {
@@ -19,13 +20,14 @@ class RoomUnavailability:
             }
         return result
 
-    def build_attr_dict(self, room_unavail_id, room_id, room_unavail_date, room_start_time, room_end_time):
+    def build_attr_dict(self, room_unavail_id, room_id, room_unavail_date, room_start_time, room_end_time, scheduled):
         result = {}
         result['room_unavail_id'] = room_unavail_id
         result['room_id'] = room_id
         result['room_unavail_date'] = str(room_unavail_date)
         result['room_start_time'] = str(room_start_time)
         result['room_end_time'] = str(room_end_time)
+        result['scheduled'] = scheduled
         return result
 
     def getAllRoomUnavail(self):
@@ -51,9 +53,10 @@ class RoomUnavailability:
         room_unavail_date = json['room_unavail_date']
         room_start_time = json['room_start_time']
         room_end_time = json['room_end_time']
+        scheduled = json['scheduled']
         dao = RoomsUnavailDao()
-        update_status = dao.updateRoomUnavail(room_unavail_id, room_id, room_unavail_date, room_start_time, room_end_time)
-        result = self.build_attr_dict(room_unavail_id, room_id, room_unavail_date, room_start_time, room_end_time)
+        update_status = dao.updateRoomUnavail(room_unavail_id, room_id, room_unavail_date, room_start_time, room_end_time, scheduled)
+        result = self.build_attr_dict(room_unavail_id, room_id, room_unavail_date, room_start_time, room_end_time, scheduled)
         return jsonify(result)
 
     def insertRoomUnavail(self, json):
@@ -61,9 +64,10 @@ class RoomUnavailability:
         room_unavail_date = json['room_unavail_date']
         room_start_time = json['room_start_time']
         room_end_time = json['room_end_time']
+        scheduled = 0
         dao = RoomsUnavailDao()
-        room_unavail_id = dao.insertRoomUnavail(room_id, room_unavail_date, room_start_time, room_end_time)
-        result = self.build_attr_dict(room_unavail_id, room_id, room_unavail_date, room_start_time, room_end_time)
+        room_unavail_id = dao.insertRoomUnavail(room_id, room_unavail_date, room_start_time, room_end_time, scheduled)
+        result = self.build_attr_dict(room_unavail_id, room_id, room_unavail_date, room_start_time, room_end_time, scheduled)
         return jsonify(result)
 
     def deleteRoomUnavail(self, room_unavail_id):
@@ -80,11 +84,12 @@ class RoomUnavailability:
         room_unavail_date = json['room_unavail_date']
         room_start_time = json['room_start_time']
         room_end_time = json['room_end_time']
+        scheduled = 0
         dao = RoomsUnavailDao()
-        room_unavail_id = dao.insertRoomUnavailAuth(user_id, room_id, room_unavail_date, room_start_time, room_end_time)
+        room_unavail_id = dao.insertRoomUnavailAuth(user_id, room_id, room_unavail_date, room_start_time, room_end_time, scheduled)
         if room_unavail_id == 'error':
             return jsonify({"error": "Authorization level required not met or could not mark time-slot."})
-        result = self.build_attr_dict(room_unavail_id, room_id, room_unavail_date, room_start_time, room_end_time)
+        result = self.build_attr_dict(room_unavail_id, room_id, room_unavail_date, room_start_time, room_end_time, scheduled)
         return jsonify(result)
 
     def deleteRoomUnavailAuth(self, user_id, room_unavail_id):

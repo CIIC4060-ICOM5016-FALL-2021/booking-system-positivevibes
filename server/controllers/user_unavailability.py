@@ -11,6 +11,7 @@ class UserUnavailability:
                 "user_start_time": str(row[2]),
                 "user_end_time": str(row[3]),
                 "user_date": str(row[4]),
+                "scheduled": row[5]
             }
         else:
             result = {
@@ -19,13 +20,14 @@ class UserUnavailability:
             }
         return result
 
-    def build_attr_dict(self, user_unavail_id, user_id, user_start_time, user_end_time, user_date):
+    def build_attr_dict(self, user_unavail_id, user_id, user_start_time, user_end_time, user_date, scheduled):
         result = {}
         result['user_unavail_id'] = user_unavail_id
         result['user_id'] = user_id
         result['user_start_time'] = str(user_start_time)
         result['user_end_time'] = str(user_end_time)
         result['user_date'] = str(user_date)
+        result['scheduled'] = scheduled
         return result
 
     def getAllUnavailableUsers(self):
@@ -51,9 +53,10 @@ class UserUnavailability:
         user_start_time = json['user_start_time']
         user_end_time = json['user_end_time']
         user_date = json['user_date']
+        scheduled = json['scheduled']
         dao = UserUnavailabilityDAO()
-        update_status = dao.updateUserUnavailability(user_unavail_id, user_id, user_start_time, user_end_time, user_date)
-        result = self.build_attr_dict(user_unavail_id, user_id, user_start_time, user_end_time, user_date)
+        update_status = dao.updateUserUnavailability(user_unavail_id, user_id, user_start_time, user_end_time, user_date, scheduled)
+        result = self.build_attr_dict(user_unavail_id, user_id, user_start_time, user_end_time, user_date, scheduled)
         return jsonify(result)
 
     def insertUnavailableUser(self, json):
@@ -61,9 +64,10 @@ class UserUnavailability:
         user_start_time = json['user_start_time']
         user_end_time = json['user_end_time']
         user_date = json['user_date']
+        scheduled = 0
         dao = UserUnavailabilityDAO()
-        user_unavail_id = dao.insertUnavailableUser(user_id, user_start_time, user_end_time, user_date)
-        result = self.build_attr_dict(user_unavail_id, user_id, user_start_time, user_end_time, user_date)
+        user_unavail_id = dao.insertUnavailableUser(user_id, user_start_time, user_end_time, user_date, scheduled)
+        result = self.build_attr_dict(user_unavail_id, user_id, user_start_time, user_end_time, user_date, scheduled)
         return jsonify(result)
 
     def deleteUnavailableUser(self, user_unavail_id):

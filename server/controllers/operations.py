@@ -36,15 +36,28 @@ class Operations():
         room_id = json['room_id']
         user_id = json['user_id']
         date = json['date']
-        tuples = dao.getRoomAllDaySchedule(room_id, user_id, date)
+        tuples_ns, tuples_s = dao.getRoomAllDaySchedule(room_id, user_id, date)
         result = {}
-        schedule = []
-        for t in tuples:
-            schedule.append({
+        non_scheduled = []
+        scheduled = []
+        for t in tuples_ns:
+            non_scheduled.append({
                 'room_start_time' : str(t[0]),
-                'room_end_time' : str(t[1])
+                'room_end_time' : str(t[1]),
+                'room_date' : str(t[2]),
+                'slot_name' : t[3],
+                'slot_description': t[4]
             })
-        result['Schedule'] = schedule
+        for t in tuples_s:
+            scheduled.append({
+                'room_start_time' : str(t[0]),
+                'room_end_time' : str(t[1]),
+                'room_date' : str(t[2]),
+                'slot_name' : t[3],
+                'slot_description': t[4]
+            })
+        result['Non-Scheduled'] = non_scheduled
+        result['Scheduled'] = scheduled
         return jsonify(result)
 
     #5. Give an all-day schedule for a user
@@ -52,15 +65,28 @@ class Operations():
         dao = OperationsDAO()
         user_id = json['user_id']
         date = json['date']      
-        tuples = dao.getAllDayScheduleforUser(user_id, date)
+        tuples_ns, tuples_s = dao.getAllDayScheduleforUser(user_id, date)
         result = {}
-        schedule = []
-        for t in tuples:
-            schedule.append({
+        non_scheduled = []
+        scheduled = []
+        for t in tuples_ns:
+            non_scheduled.append({
                 'user_start_time' : str(t[0]),
-                'user_end_time': str(t[1])
+                'user_end_time': str(t[1]),
+                'user_date': str(t[2]),
+                'slot_name': t[3],
+                'slot_description': t[4]
             })
-        result['Schedule'] = schedule
+        for t in tuples_s:
+            scheduled.append({
+                'user_start_time' : str(t[0]),
+                'user_end_time': str(t[1]),
+                'user_date': str(t[2]),
+                'slot_name': t[3],
+                'slot_description': t[4]
+            })
+        result['Non-Scheduled'] = non_scheduled
+        result['Scheduled'] = scheduled
         return jsonify(result)
 
     #8. Find a time that is free for everyone in the meeting
