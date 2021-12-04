@@ -19,7 +19,8 @@ function BookMeeting(){
     const [open, setOpen] = useState(false);
     const localizer = momentLocalizer(moment)
 
-    return <Container style={{ height: 800 }}><Calendar
+        return <Container style={{ height: 800 }}>
+        < Calendar
         selectable
         localizer={localizer}
         startAccessor="start"
@@ -60,7 +61,7 @@ function BookMeeting(){
         <Button
             fluid
             onClick={() => {setOpen(true)}}
-        > Mark as unavailable</Button>
+        > Mark Room as unavailable</Button>
     </Container>
     </Container>
 

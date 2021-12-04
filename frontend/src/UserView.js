@@ -7,6 +7,7 @@ import BookMeeting from "./BookMeeting";
 import Schedule from "./Schedule";
 import LogOut from "./LogOut";
 import UserStats from './UserStats';
+import RoomManagement from './RoomManagement';
 
 function UserView(){
     const [isAuth, setIsAuth] = useState(false)
@@ -32,7 +33,7 @@ function UserView(){
 
     if(isAuth)
         panes.push({
-            menuItem: 'Room Management', render: () => <Tab.Pane active={isAuth} renderActiveOnly={true}><BookMeeting/></Tab.Pane>
+            menuItem: 'Room Management', render: () => <Tab.Pane active={isAuth} renderActiveOnly={true}><RoomManagement/></Tab.Pane>
         })
     
     panes.push({
