@@ -33,22 +33,66 @@ class OperationsDAO():
     #4. Give an all-day schedule for a room
     def getRoomAllDaySchedule(self, room_id, user_id, room_unavail_date):
         cursor = self.conn.cursor()
-        query = "select room_start_time, room_end_time from room_unavailability where room_id=%s and room_unavail_date=%s and (select authorization_level from users as u where u.user_id = %s) >= (select authorization_level from rooms as r where r.room_id = %s) group by room_unavail_date, room_start_time, room_end_time order by room_start_time, room_end_time"
-        cursor.execute(query, (room_id, room_unavail_date, user_id, room_id))
-        result = []
+
+        non_scheduled = []
+        scheduled = []
+
+        # Find non-scheduled slots
+        if room_unavail_date == 'none':
+            query = "select room_start_time, room_end_time, room_unavail_date from room_unavailability where room_id=%s and scheduled = 0 and (select authorization_level from users as u where u.user_id = %s) >= (select authorization_level from rooms as r where r.room_id = %s) group by room_start_time, room_end_time, room_unavail_date order by room_start_time, room_end_time"
+            cursor.execute(query, (room_id, user_id, room_id,))
+        else:
+            query = "select room_start_time, room_end_time, room_unavail_date from room_unavailability where room_id=%s and room_unavail_date=%s and (select authorization_level from users as u where u.user_id = %s) >= (select authorization_level from rooms as r where r.room_id = %s) group by room_unavail_date, room_start_time, room_end_time order by room_start_time, room_end_time"
+            cursor.execute(query, (room_id, room_unavail_date, user_id, room_id))
+        name_desc = 'Marked as busy'
         for row in cursor:
-            result.append(row)
-        return result
+            row = row + (name_desc, name_desc,)
+            non_scheduled.append(row)
+
+        # Find scheduled slots
+        if room_unavail_date == 'none':
+            query = "select room_start_time, room_end_time, room_unavail_date, schedule_name, schedule_description from room_unavailability as ru inner join schedule as s using (room_id) where ru.room_id = %s and (select authorization_level from users as u where u.user_id = %s) >= (select authorization_level from rooms as r where r.room_id = %s) and ru.room_unavail_date = s.schedule_date and room_start_time = s.schedule_start_time and room_end_time = s.schedule_end_time group by room_start_time, room_end_time, room_unavail_date, schedule_name, schedule_description order by room_start_time, room_end_time;"
+            cursor.execute(query, (room_id, user_id, room_id,))
+        else:
+            query = "select room_start_time, room_end_time, room_unavail_date, schedule_name, schedule_description from room_unavailability as ru inner join schedule as s using (room_id) where ru.room_id = %s and ru.room_unavail_date = %s and (select authorization_level from users as u where u.user_id = %s) >= (select authorization_level from rooms as r where r.room_id = %s) and ru.room_unavail_date = s.schedule_date and room_start_time = s.schedule_start_time and room_end_time = s.schedule_end_time group by room_start_time, room_end_time, room_unavail_date, schedule_name, schedule_description order by room_start_time, room_end_time;"
+            cursor.execute(query, (room_id, room_unavail_date, user_id, room_id,))
+        
+        for row in cursor:
+            scheduled.append(row)
+
+        return non_scheduled, scheduled
 
     #5. Give an all-day schedule for a user
     def getAllDayScheduleforUser(self, user_id, user_date):
         cursor = self.conn.cursor()
-        query = "select user_start_time, user_end_time from user_unavailability where user_id=%s and user_date=%s group by user_date, user_start_time, user_end_time order by user_start_time, user_end_time"
-        cursor.execute(query, (user_id, user_date,))
-        result = []
+        
+        non_scheduled = []
+        scheduled = []
+
+        # Find non scheduled slots
+        if user_date == 'none':
+            query = "select user_start_time, user_end_time, user_date from user_unavailability where user_id=%s and scheduled = 0 group by user_date, user_start_time, user_end_time order by user_start_time, user_end_time"
+            cursor.execute(query, (user_id,))
+        else:
+            query = "select user_start_time, user_end_time, user_date from user_unavailability where user_id=%s and user_date=%s and scheduled = 0 group by user_date, user_start_time, user_end_time order by user_start_time, user_end_time"
+            cursor.execute(query, (user_id, user_date,))
+        name_desc = 'Marked as busy'
         for row in cursor:
-            result.append(row)
-        return result
+            row = row + (name_desc, name_desc,)
+            non_scheduled.append(row)
+
+        # Find scheduled slots
+        if user_date == 'none':
+            query = "select user_start_time, user_end_time, user_date, schedule_name, schedule_description from (user_unavailability as uu natural inner join invitee as i) inner join schedule as s using (schedule_id) where uu.user_id = %s and uu.user_date = s.schedule_date and user_start_time = s.schedule_start_time and user_end_time = s.schedule_end_time group by user_start_time, user_end_time, user_date, schedule_name, schedule_description order by user_start_time, user_end_time"
+            cursor.execute(query, (user_id,))
+        else:
+            query = "select user_start_time, user_end_time, user_date, schedule_name, schedule_description from (user_unavailability as uu natural inner join invitee as i) inner join schedule as s using (schedule_id) where uu.user_id = %s and uu.user_date = %s and uu.user_date = s.schedule_date and user_start_time = s.schedule_start_time and user_end_time = s.schedule_end_time group by user_start_time, user_end_time, user_date, schedule_name, schedule_description order by user_start_time, user_end_time"
+            cursor.execute(query, (user_id, user_date,))
+        
+        for row in cursor:
+            scheduled.append(row)
+
+        return non_scheduled, scheduled
 
     #8. Find a time that is free for everyone in the meeting
 
