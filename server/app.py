@@ -258,7 +258,7 @@ def rooms_appointed():
 @app.route('/API/rooms/schedule', methods=['GET'])
 def rooms_schedule():
     if request.method == 'GET':
-        res = make_response(Operations().getRoomAllDaySchedule(request.json))
+        res = make_response(Operations().getRoomAllDaySchedule(request.args))
         res.headers['Access-Control-Allow-Origin'] = '*'
         return res
     else:

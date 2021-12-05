@@ -8,9 +8,12 @@ import Select from 'react-select';
 
 import CONFIG from './config';
 import { parseFromDate } from './functions/DateChange';
+import 'qs';
+import QueryString, { stringify } from 'qs';
 
 function BookMeeting(){
     const [dates, setDates] = useState([]);
+    const [roomDates, setRoomDates] = useState([]);
     const [open, setOpen] = useState(false);
     const localizer = momentLocalizer(moment)
     const [rooms, setRooms] = useState([])
@@ -20,12 +23,15 @@ function BookMeeting(){
                                         })
     const [warningText, setWarningText] = useState("");
     const [sucessText, setSucessText] = useState("");
-    const url = CONFIG.URL + '/rooms'
+    const room_url = CONFIG.URL + '/rooms';
+    const unavail_url = CONFIG.URL + '/room_unavailability';
+    const sched_url = CONFIG.URL + '/rooms/schedule';
+    const user = JSON.parse(localStorage.getItem('User'));
 
     useEffect(() => {
         axios({
             method: 'GET',
-            url: url
+            url: room_url
         })
         .then((res) => {
             let room_list = []
@@ -52,6 +58,74 @@ function BookMeeting(){
         setDates(date_array);
     }
 
+    const changeSelectedRoom = (selected) => {
+        setSelectedRoom(selected);
+        setTimeout(() => {}, 1000);
+        let room_dates = []
+        let room_selected = {
+            room_id : selectedRoom.value,
+            user_id : user.user_id,
+            date : "none"
+        }
+        console.log(room_selected);
+        axios({
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+            data: JSON.stringify({
+                room_id : selectedRoom.value,
+                user_id : user.user_id,
+                date : "none"
+            }),
+            url: sched_url
+        })
+        .then((res) => {
+            let tmp = []
+            for (let i = 0; i < res.data['Non-Scheduled'].length; i++)
+                tmp.push(res.data['Non-Scheduled'][i]);
+            for (let i = 0; i < res.data['Scheduled'].length; i++)
+                tmp.push(res.data['Scheduled'][i]);
+            
+            /*{
+                'title': 'Selection',
+                'allDay': false,
+                'start': new Date(selected.start),
+                'end': new Date(selected.end)
+            } */
+            for (let i = 0; i < tmp.length; i++) {
+                let date_split = []
+                let start_split = []
+                let end_split = []
+                tmp[i].room_date.split("-").forEach(s => date_split.push(parseInt(s)));
+                tmp[i].room_start_time.split(":").forEach(s => start_split.push(parseInt(s)));
+                tmp[i].room_end_time.split(":").forEach(s => end_split.push(parseInt(s)));
+
+                // new Date(year, month, day, hours, minutes, seconds, milliseconds)
+                let start_t = new Date(date_split[0], date_split[1]-1, date_split[2], start_split[0], start_split[1], start_split[2], 0);
+                let end_t = new Date(date_split[0], date_split[1]-1, date_split[2], end_split[0], end_split[1], end_split[2], 0);
+                room_dates.push({
+                    'title': tmp[i].slot_name,
+                    'allDay': false,
+                    'start': start_t,
+                    'end': end_t
+                });
+            }
+            setRoomDates(room_dates);
+        })
+        // let r = {
+        //     "room_date": "2021-11-16",
+        //     "room_end_time": "16:00:00",
+        //     "room_start_time": "15:00:00",
+        // }
+        // let date_split = []
+        // r.room_date.split("-").forEach(s => date_split.push(parseInt(s)));
+        // let start_split = []
+        // r.room_start_time.split(":").forEach(s => start_split.push(parseInt(s)));
+        
+        // // new Date(year, month, day, hours, minutes, seconds, milliseconds)
+        // let d = new Date(date_split[0], date_split[1]-1, date_split[2], start_split[0], start_split[1], start_split[2], 0)
+        // console.log(d)
+    }
+
     const markRoom = () => {
         if (selectedRoom.value != -1) {
             if (dates.length >= 1) {
@@ -70,7 +144,6 @@ function BookMeeting(){
                     "room_end_time": parsed[2]
                 }
                 
-                let unavail_url = CONFIG.URL + '/room_unavailability';
 
                 axios({
                     method: 'POST',
@@ -80,13 +153,11 @@ function BookMeeting(){
                 })
                 .then((res) => {
                     setSucessText("Time marked as unavailable successfully.");
-                    Promise(resolve => setTimeout(resolve, 2000));
-                    //reload page
-                    window.location.reload();
+                    setTimeout(function() {
+                        //reload page
+                        window.location.reload();
+                    }, 2000);
                 })
-    
-                
-            
             }
             else { // Please select a time frame to mark
                 setWarningText("Please select a time frame to mark.");
@@ -107,7 +178,7 @@ function BookMeeting(){
             search
             fluid
             options={rooms}
-            onChange={(selected) => setSelectedRoom(selected)}
+            onChange={changeSelectedRoom}
             style={{marginBottom: "1em"}}
         />
         <p/>
@@ -131,7 +202,7 @@ function BookMeeting(){
             selectable
             localizer={localizer}
             startAccessor="start"
-            events={dates}
+            events={roomDates.concat(dates)}
             endAccessor="end"
             views={["month", "day"]}
             defaultDate={Date.now()}
