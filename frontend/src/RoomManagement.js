@@ -58,24 +58,24 @@ function BookMeeting(){
         setDates(date_array);
     }
 
-    const changeSelectedRoom = (selected) => {
+    const switchRoom = (selected) => {
         setSelectedRoom(selected);
-        setTimeout(() => {}, 1000);
+        setTimeout(() => {}, 250);
+    }
+
+    const changeSelectedRoom = () => {
+        setRoomDates([]);
+        setTimeout(() => {}, 250);
         let room_dates = []
         let room_selected = {
             room_id : selectedRoom.value,
             user_id : user.user_id,
             date : "none"
         }
-        console.log(room_selected);
+        // console.log(room_selected);
         axios({
             method: 'GET',
-            headers: {'Content-Type': 'application/json'},
-            data: JSON.stringify({
-                room_id : selectedRoom.value,
-                user_id : user.user_id,
-                date : "none"
-            }),
+            params: room_selected,
             url: sched_url
         })
         .then((res) => {
@@ -111,19 +111,6 @@ function BookMeeting(){
             }
             setRoomDates(room_dates);
         })
-        // let r = {
-        //     "room_date": "2021-11-16",
-        //     "room_end_time": "16:00:00",
-        //     "room_start_time": "15:00:00",
-        // }
-        // let date_split = []
-        // r.room_date.split("-").forEach(s => date_split.push(parseInt(s)));
-        // let start_split = []
-        // r.room_start_time.split(":").forEach(s => start_split.push(parseInt(s)));
-        
-        // // new Date(year, month, day, hours, minutes, seconds, milliseconds)
-        // let d = new Date(date_split[0], date_split[1]-1, date_split[2], start_split[0], start_split[1], start_split[2], 0)
-        // console.log(d)
     }
 
     const markRoom = () => {
@@ -178,15 +165,15 @@ function BookMeeting(){
             search
             fluid
             options={rooms}
-            onChange={changeSelectedRoom}
+            onChange={switchRoom}
             style={{marginBottom: "1em"}}
         />
         <p/>
-        {/* <Button
+        <Button
                     color="blue"
-                    onClick={() => { setOpen(true) }}
+                    onClick={changeSelectedRoom}
                     
-        > Book Meeting </Button> */}
+        > Select Room </Button>
         <Button
             color="black"
             onClick={markRoom}
