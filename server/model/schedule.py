@@ -102,11 +102,11 @@ class ScheduleDAO():
     def deleteSchedule(self, schedule_id):
         cursor = self.conn.cursor()
         query = "select schedule_id, schedule_start_time, schedule_end_time, schedule_date, user_id, room_id from schedule where schedule_id = %s;"
-        cursor.execute(query, (schedule_id))
-        schedule= cursor.fetchone()[0]
+        cursor.execute(query, (schedule_id,))
+        schedule = cursor.fetchone()
         query = "delete from invitee where schedule_id=%s; "
         query += "delete from user_unavailability where user_start_time=%s and user_end_time=%s and user_date=%s; "
-        query += "delete from rooms where room_start_time=%s and room_end_time=%s and room_unavail_date=%s; "
+        query += "delete from room_unavailability where room_start_time=%s and room_end_time=%s and room_unavail_date=%s; "
         query += "delete from schedule where schedule_id=%s;"
         cursor.execute(query, (schedule_id, schedule[1], schedule[2], schedule[3], schedule[1], schedule[2], schedule[3], schedule_id))
         affected_rows = cursor.rowcount

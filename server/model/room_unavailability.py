@@ -2,6 +2,7 @@ from os import curdir
 
 from flask.json import jsonify
 from config.dbconfig import pg_config
+from controllers.schedule import Schedule
 import psycopg2
 
 class RoomsUnavailDao():
@@ -43,11 +44,21 @@ class RoomsUnavailDao():
 
     def deleteRoomUnavail(self, room_unavail_id):
         cursor = self.conn.cursor()
-        query = "delete from room_unavailability where room_unavail_id=%s;"  
+        query = "select room_id, room_unavail_date, room_start_time, room_end_time, scheduled from room_unavailability where room_unavail_id = %s"
         cursor.execute(query, (room_unavail_id,))
-        affected_rows = cursor.rowcount
-        self.conn.commit()
-        return affected_rows != 0
+        info = cursor.fetchone()
+        scheduled = info[4]
+        if scheduled == 0:
+            query = "delete from room_unavailability where room_unavail_id=%s;"  
+            cursor.execute(query, (room_unavail_id,))
+            affected_rows = cursor.rowcount
+            self.conn.commit()
+            return affected_rows != 0
+        else:
+            query = "select schedule_id from schedule where schedule_start_time=%s and schedule_end_time=%s and schedule_date=%s and room_id=%s"
+            cursor.execute(query, (info[2], info[3], info[1], info[0],))
+            sched_id = cursor.fetchone()[0]
+            return Schedule().deleteSchedule(sched_id)
 
     def insertRoomUnavailAuth(self, user_id, room_id, room_unavail_date, room_start_time, room_end_time, scheduled):
         cursor = self.conn.cursor()
