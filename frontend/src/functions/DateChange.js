@@ -43,6 +43,8 @@ export function parseFromDate(start, end) {
     // And Wed Jun 01 2022 03:00:00 GMT-0400 (Bolivia Time)
     // To 2022-01-01, 01:30:00, 03:00:00
     let res = [];
+    start = start.toString();
+    end = end.toString();
     let lines = start.split(" ");
     let date = lines[3] + '-' + monthToNumber(lines[1]) + '-' + lines[2];
     let start_time = lines[4];

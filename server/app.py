@@ -60,7 +60,7 @@ def user_byid_route(user_id):
 @app.route('/API/users/schedule', methods=['GET'])
 def user_schedule():
     if request.method == 'GET':
-        res = make_response(Operations().getAllDayScheduleforUser(request.json))
+        res = make_response(Operations().getAllDayScheduleforUser(request.args))
         res.headers['Access-Control-Allow-Origin'] = '*'
         return res
     else:
@@ -135,7 +135,7 @@ def schedule_byid_route(schedule_id):
 @app.route('/API/schedule/available', methods=['GET'])
 def schedule_find_timeslots():
     if request.method == 'GET':
-        res =  make_response(Operations().findAvailableTimeSlot(request.json))
+        res =  make_response(Operations().findAvailableTimeSlot(request.args))
         res.headers['Access-Control-Allow-Origin'] = '*'
         return res
     else:
@@ -232,7 +232,7 @@ def rooms_byid_route(room_id):
 @app.route('/API/rooms/availability', methods=['GET'])
 def rooms_availability():
     if request.method == 'GET':
-        res = make_response(Operations().getAllAvailableRooms(request.json))
+        res = make_response(Operations().getAllAvailableRooms(request.args))
         res.headers['Access-Control-Allow-Origin'] = '*'
         return res
     else:
@@ -245,7 +245,7 @@ def rooms_availability():
 @app.route('/API/rooms/appointed', methods=['GET'])
 def rooms_appointed():
     if request.method == 'GET':
-        res = make_response(Operations().whoAppointedRoom(request.json))
+        res = make_response(Operations().whoAppointedRoom(request.args))
         res.headers['Access-Control-Allow-Origin'] = '*'
         return res
     else:

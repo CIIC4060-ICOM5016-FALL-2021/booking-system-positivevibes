@@ -21,14 +21,12 @@ class OperationsDAO():
     #3. Find who appointed a room at a certain time
     def whoAppointedRoom(self, room_id, user_id, date, time):
         cursor = self.conn.cursor()
-        query = "select user_id from schedule as s where room_id = %s and schedule_date = %s and %s between schedule_start_time and schedule_end_time and (select authorization_level from users as u where u.user_id = %s) >= (select authorization_level from rooms as r where r.room_id = %s)"
+        query = "select user_id, user_email, first_name, last_name from schedule as s natural inner join users where room_id = %s and schedule_date = %s and %s between schedule_start_time and schedule_end_time and (select authorization_level from users as u where u.user_id = %s) >= (select authorization_level from rooms as r where r.room_id = %s)"
         cursor.execute(query, (room_id, date, time, user_id, room_id,))
-        uid = cursor.fetchone()
-        if not uid:
+        user = cursor.fetchone()
+        if not user:
             return 'error'
-        else:
-            uid = uid[0]
-        return uid
+        return user
 
     #4. Give an all-day schedule for a room
     def getRoomAllDaySchedule(self, room_id, user_id, room_unavail_date):

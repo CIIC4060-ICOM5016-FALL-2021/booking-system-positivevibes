@@ -8,27 +8,30 @@ import Select from 'react-select';
 
 import CONFIG from './config';
 import { parseFromDate } from './functions/DateChange';
-import 'qs';
-import QueryString, { stringify } from 'qs';
+import AddRoom from './functions/AddRoom';
 
 function BookMeeting(){
     const [dates, setDates] = useState([]);
     const [roomDates, setRoomDates] = useState([]);
     const [open, setOpen] = useState(false);
-    const localizer = momentLocalizer(moment)
-    const [rooms, setRooms] = useState([])
-    const [selectedRoom, setSelectedRoom] = useState({
-                                        'text': 'Select Room',
-                                        'value': -1
-                                        })
+    const localizer = momentLocalizer(moment);
+    const [rooms, setRooms] = useState([]);
+    const [selectedRoom, setSelectedRoom] = useState({'text': 'Select Room', 'value': -1});
     const [warningText, setWarningText] = useState("");
     const [sucessText, setSucessText] = useState("");
+    const [selected, setSelected] = useState({});
+    const [rawSchedules, setRawSchedules] = useState([]);
+    const [showModify, setShowModify] = useState(false);
+    const [deleteBtn, setDeleteBtn] = useState('hidden');
+    const [deletePop, setDeletePop] = useState(false);
+    const [appointedRoom, setAppointedRoom] = useState({});
+
     const room_url = CONFIG.URL + '/rooms';
     const unavail_url = CONFIG.URL + '/room_unavailability';
     const sched_url = CONFIG.URL + '/rooms/schedule';
     const user = JSON.parse(localStorage.getItem('User'));
 
-    useEffect(() => {
+    const loadRooms = () => {
         axios({
             method: 'GET',
             url: room_url
@@ -44,18 +47,12 @@ function BookMeeting(){
             setRooms(room_list);
             // console.log(res.data);
         });
-    }, []);
+    }
+    
+    loadRooms();    
 
-    const addSelection = (selected) => {
-        let date_array = dates;
-        console.log(selected);
-        date_array.push({
-            'title': 'Selection',
-            'allDay': false,
-            'start': new Date(selected.start),
-            'end': new Date(selected.end)
-        });
-        setDates(date_array);
+    const toggleAddRoom = () => {
+        setOpen(!open);
     }
 
     const switchRoom = (selected) => {
@@ -65,6 +62,7 @@ function BookMeeting(){
 
     const changeSelectedRoom = () => {
         setRoomDates([]);
+        setDeleteBtn('visible');
         setTimeout(() => {}, 250);
         let room_dates = []
         let room_selected = {
@@ -84,7 +82,7 @@ function BookMeeting(){
                 tmp.push(res.data['Non-Scheduled'][i]);
             for (let i = 0; i < res.data['Scheduled'].length; i++)
                 tmp.push(res.data['Scheduled'][i]);
-            
+            setRawSchedules(tmp);
             /*{
                 'title': 'Selection',
                 'allDay': false,
@@ -131,7 +129,6 @@ function BookMeeting(){
                     "room_end_time": parsed[2]
                 }
                 
-
                 axios({
                     method: 'POST',
                     url: unavail_url,
@@ -157,9 +154,76 @@ function BookMeeting(){
         
         
     }
+    const handleSelectedEvent = (event) => {
+        setSelected(event);
+        setShowModify(true);
+        // console.log(event);
+        // console.log(event.start, event.end)
+
+        // fetch who appointed the room
+        let e_info = parseFromDate(event.start, event.end);
+        // console.log(e_info)
+        let params = {
+            "room_id" : selectedRoom.value,
+            "user_id" : user.user_id,
+            "date" : e_info[0],
+            "time" : e_info[1]
+        }
+        axios({
+            method: 'GET',
+            params: params,
+            url: CONFIG.URL + '/rooms/appointed'
+        })
+        .then((res) => setAppointedRoom(res.data))
+    }
+        
+    const deleteRoom = () => {
+        setDeletePop(false);
+        setSucessText('Room deleted! Refreshing page...')
+        console.log("Trying to delete room with id: ", selectedRoom.value.toString());
+        setTimeout(function() {
+            //reload page
+            window.location.reload();
+        }, 5000);
+        // axios({
+        //     method: 'DELETE',
+        //     url: CONFIG.URL + '/rooms/' + selectedRoom.value.toString()
+        // })
+        // .then((res) => {
+        //     setDeletePop(false);
+        //     setSucessText('Room deleted! Refreshing page...')
+        //     console.log("Trying to delete room with id: ", selectedRoom.value.toString());
+        //     setTimeout(function() {
+        //         //reload page
+        //         window.location.reload();
+        //     }, 5000);
+        // })
+        // .catch((err) => {
+
+        // })
+    }
 
     return (
     <>
+
+    <Modal
+        centered={true}
+        open={open}
+        onClose={() => setOpen(false)}
+        onOpen={() => setOpen(true)}>
+        <Modal.Content>
+            <AddRoom/>
+        </Modal.Content>
+        <Modal.Actions>
+            <Button onClick={() => setOpen(false)}>CLOSE</Button>
+        </Modal.Actions>
+    </Modal>
+
+    <Container fluid style={{alignItems:"center", justifyContent:"center"}}>
+        <Button color="green" content='Add Room' size='big' onClick={toggleAddRoom}/>
+        <Divider />
+    </Container>
+
     <Container fluid style={{alignItems:"center", justifyContent:"center"}}>
         <Select name="Rooms" class = "ui fluid search dropdown"
             search
@@ -168,16 +232,20 @@ function BookMeeting(){
             onChange={switchRoom}
             style={{marginBottom: "1em"}}
         />
-        <p/>
+         <Divider />
         <Button
-                    color="blue"
-                    onClick={changeSelectedRoom}
-                    
+            color="blue"
+            onClick={changeSelectedRoom}
         > Select Room </Button>
         <Button
             color="black"
             onClick={markRoom}
         > Mark Room as unavailable </Button>
+        <Button
+            color="red"
+            style={{visibility: deleteBtn}}
+            onClick={() => setDeletePop(true)}
+        > Delete Room </Button>
         <span className="warning">{warningText}</span>
         <span className="success">{sucessText}</span>
         <Divider />
@@ -187,6 +255,8 @@ function BookMeeting(){
     <Container style={{ height: 800}}>
         < Calendar
             selectable
+            selected={selected}
+            onSelectEvent={handleSelectedEvent}
             localizer={localizer}
             startAccessor="start"
             events={roomDates.concat(dates)}
@@ -204,22 +274,53 @@ function BookMeeting(){
 
         <Modal
             centered={false}
-            open={open}
-            onClose={() => setOpen(false)}
-            onOpen={() => setOpen(true)}
+            size={'tiny'}
+            style={{
+                height: "fit-content",
+                width: "fit-content",
+                marginLeft: "25%",
+                marginTop:"10%",
+            }}
+            open={showModify}
+            dimmer={'blurring'}
+            onClose={() => setShowModify(false)}
+            onOpen={() => setShowModify(true)}
+            trigger={<Button>Show Modal</Button>}
         >
-            <Modal.Header>Needs changing!</Modal.Header>
-            <Modal.Content>
-                <Modal.Description>
-                    This is a modal but it serves to show how buttons and functions can be implemented.
-                </Modal.Description>
-            </Modal.Content>
-            <Modal.Actions>
-                <Button onClick={() => setOpen(false)}>OK</Button>
+            <Modal.Header>{user.user_name}</Modal.Header>
+                <Modal.Content>Scheduled by: {appointedRoom}</Modal.Content>
+                <Modal.Actions>
+                    <Button color="orange">Modify Event</Button>
+                    <Button color="red">Delete Event</Button>
+                <Button onClick={() => setShowModify(false)} color="green">Close Modal</Button>
+            </Modal.Actions>
+        </Modal>
+
+
+        <Modal
+            centered={false}
+            size={'tiny'}
+            style={{
+                height: "fit-content",
+                width: "fit-content",
+                marginLeft: "25%",
+                marginTop:"10%",
+            }}
+            open={deletePop}
+            dimmer={'blurring'}
+            onClose={() => setDeletePop(false)}
+            onOpen={() => setDeletePop(true)}
+            trigger={<Button>Show Modal</Button>}
+        >
+            <Modal.Header>Are you sure you want to delete {selectedRoom.label}?</Modal.Header>
+            <Modal.Content>This will delete everything related to this room including schedules.</Modal.Content>
+                <Modal.Actions>
+                    <Button onClick={deleteRoom} color="red">Delete Room</Button>
+                    <Button onClick={() => setDeletePop(false)}>Cancel</Button>
             </Modal.Actions>
         </Modal>
         
-        </Container>
+    </Container>
     </>
     )
         

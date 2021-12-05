@@ -25,10 +25,16 @@ class Operations():
         user_id = json['user_id']
         date = json['date']
         time = json['time']
-        user_id = dao.whoAppointedRoom(room_id, user_id, date, time)
-        if user_id == 'error':
+        user = dao.whoAppointedRoom(room_id, user_id, date, time)
+        if user == 'error':
             return jsonify({"error": "Authorization level not met or no user found for appointment during that time frame at room {}".format(room_id)})
-        return jsonify({"user_id": user_id})
+        result = {
+            "user_id": user[0],
+            "user_email": user[1],
+            "user_first_name": user[2],
+            "user_last_name": user[3]
+        }
+        return jsonify(result)
 
     #4. Give an all-day schedule for a room
     def getRoomAllDaySchedule(self, json):
@@ -93,7 +99,7 @@ class Operations():
     def findAvailableTimeSlot(self, json):
         dao = OperationsDAO()
         date = json['date']
-        invitees = json['invitees']
+        invitees = json['invitees'].split(',')
         intervals = dao.findAvailableTimeSlot(date, invitees)
         if intervals == 'missing_invitees':
             return jsonify({"error": "Missing invitees, please specify which invitees are in the meeting."})

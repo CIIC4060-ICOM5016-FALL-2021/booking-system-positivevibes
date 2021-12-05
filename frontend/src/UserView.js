@@ -8,6 +8,7 @@ import Schedule from "./Schedule";
 import LogOut from "./LogOut";
 import UserStats from './UserStats';
 import RoomManagement from './RoomManagement';
+import Profile from './Profile';
 
 function UserView(){
     const [isAuth, setIsAuth] = useState(false)
@@ -41,6 +42,9 @@ function UserView(){
     })
     panes.push({
         menuItem: 'Dashboard', render: () => {window.location.href = window.location.origin + '/Dashboard'}
+    })
+     panes.push({
+        menuItem: 'Profile', render: () => <Profile/>
     })
     panes.push({
         menuItem: 'Log out', render: () => <LogOut/>
