@@ -8,8 +8,12 @@ from controllers.invitee import Invitee
 from controllers.room_unavailability import RoomUnavailability
 from controllers.user_unavailability import UserUnavailability
 from controllers.operations import Operations
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
+CORS(app, resources={
+    r"/*": {"origins": "*"}
+}, supports_credentials=True)
 
 
 @app.route('/API')
