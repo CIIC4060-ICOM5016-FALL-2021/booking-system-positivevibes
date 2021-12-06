@@ -19,10 +19,10 @@ class OperationsDAO():
         return result
 
     #3. Find who appointed a room at a certain time
-    def whoAppointedRoom(self, room_id, user_id, date, time):
+    def whoAppointedRoom(self, room_id, date, time):
         cursor = self.conn.cursor()
         query = "select user_id, user_email, first_name, last_name from schedule as s natural inner join users where room_id = %s and schedule_date = %s and %s between schedule_start_time and schedule_end_time"
-        cursor.execute(query, (room_id, date, time, user_id, room_id,))
+        cursor.execute(query, (room_id, date, time,))
         user = cursor.fetchone()
         if not user:
             return 'error'

@@ -22,10 +22,9 @@ class Operations():
     def whoAppointedRoom(self, json):
         dao = OperationsDAO()
         room_id = json['room_id']
-        user_id = json['user_id']
         date = json['date']
         time = json['time']
-        user = dao.whoAppointedRoom(room_id, user_id, date, time)
+        user = dao.whoAppointedRoom(room_id, date, time)
         if user == 'error':
             return jsonify({"error": "No user found for appointment during that time frame at room {}".format(room_id)})
         result = {
