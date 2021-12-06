@@ -35,14 +35,11 @@ function Schedule(){
 
     const [dates, setDates] = useState([]); // current selected 'event'
     const [roomDates, setRoomDates] = useState([]); // holds parsed r_unavails
-    const [open, setOpen] = useState(false);
     const localizer = momentLocalizer(moment);
     const [rooms, setRooms] = useState([]); // get from rooms
     const [selectedRoom, setSelectedRoom] = useState({'text': 'Select Room', 'value': -1});
-    const [warningText, setWarningText] = useState("");
     const [sucessText, setSucessText] = useState("");
     const [selected, setSelected] = useState({}); // selected event
-    const [rawSchedules, setRawSchedules] = useState([]); // get from r_unavail
     const [allSchedules, setAllSchedules] = useState([]); // get from schedules
     const [showModify, setShowModify] = useState(false); // boolean to show event popup modification
     const [deleteBtn, setDeleteBtn] = useState('hidden'); // delete room visibility
@@ -119,57 +116,6 @@ function Schedule(){
         }
     }
 
-    const changeSelectedRoom = () => {
-        setRoomDates([]);
-        setDeleteBtn('visible');
-        changeAuthText();
-        setTimeout(() => {}, 250);
-        let room_dates = []
-        let room_selected = {
-            room_id : selectedRoom.value,
-            user_id : user.user_id,
-            date : "none"
-        }
-        axios({
-            method: 'GET',
-            params: room_selected,
-            url: sched_url
-        })
-        .then((res) => {
-            let tmp = []
-            for (let i = 0; i < res.data['Non-Scheduled'].length; i++)
-                tmp.push(res.data['Non-Scheduled'][i]);
-            for (let i = 0; i < res.data['Scheduled'].length; i++)
-                tmp.push(res.data['Scheduled'][i]);
-
-                /*{
-                'title': 'Selection',
-                'allDay': false,
-                'start': new Date(selected.start),
-                'end': new Date(selected.end)
-            } */
-            for (let i = 0; i < tmp.length; i++) {
-                let date_split = []
-                let start_split = []
-                let end_split = []
-                tmp[i].room_date.split("-").forEach(s => date_split.push(parseInt(s)));
-                tmp[i].room_start_time.split(":").forEach(s => start_split.push(parseInt(s)));
-                tmp[i].room_end_time.split(":").forEach(s => end_split.push(parseInt(s)));
-
-                // new Date(year, month, day, hours, minutes, seconds, milliseconds)
-                let start_t = new Date(date_split[0], date_split[1]-1, date_split[2], start_split[0], start_split[1], start_split[2], 0);
-                let end_t = new Date(date_split[0], date_split[1]-1, date_split[2], end_split[0], end_split[1], end_split[2], 0);
-                room_dates.push({
-                    'title': tmp[i].slot_name,
-                    'allDay': false,
-                    'start': start_t,
-                    'end': end_t
-                });
-            }
-            setRoomDates(room_dates);
-        })
-    }
-
 
     const handleSelectedEvent = (event) => {
         setSelected(event);
@@ -188,25 +134,26 @@ function Schedule(){
         
         let sched_id;
         for (let i = 0; i < allSchedules.length; i++) {
-            //console.log(allSchedules[i].schedule_date)
-            
             if (allSchedules[i].schedule_date == e_info[0]
                 && allSchedules[i].schedule_start_time == e_info[1]
                 && allSchedules[i].schedule_end_time == e_info[2]) {                    
                 sched_id = allSchedules[i].schedule_id;
+                params.room_id = allSchedules[i].room_id
                 break;
             }
         }
 
-        // console.log("sched_id")
-        // console.log(sched_id)
         if (sched_id){
             axios({
                 method: 'GET',
                 params: params,
                 url: CONFIG.URL + '/rooms/appointed'
             })
-            .then((res) => setAppointedRoom(res.data))
+            .then((res) => {
+                setAppointedRoom(res.data)
+                console.log("Data")
+                console.log(res.data)
+            })
             axios({method: 'GET', url: CONFIG.URL + '/invitee/schedule/' + sched_id.toString()})
             .then((res) => {
                 console.log(appointedRoom)
@@ -223,22 +170,16 @@ function Schedule(){
         }
         else{
             setAppointedRoom({
-                user_first_name: "Dept",
-                user_last_name: "Staff",
-                user_id: -1,
-                user_email: "None"
+                user_first_name: user.first_name,
+                user_last_name: user.last_name,
+                user_id: user.user_id,
+                user_email: user.user_email
             })
         }
         
     }
         
-    const deleteUnavails = (unavail_slots) => {
-        // delete all unavailabilities related to the selected room
-        // this takes care of schedule, invitees, and both user and room unavailability
-        for (let i = 0; i < unavail_slots.length; i++) {
-            axios({method: 'DELETE', url: unavail_url + '/' + unavail_slots[i].room_unavail_id});
-        }
-    }
+
     const deleteRoomHelper = () => {
         axios({method: 'DELETE', url: room_url + '/' + selectedRoom.value.toString()})
         .then((res) => {
@@ -247,22 +188,6 @@ function Schedule(){
             setTimeout(() => window.location.reload(), 2500);
         })
         .catch((err) => deleteRoomHelper()) // please do not do this elsewhere c:
-    }
-    const deleteRoom = () => {
-        setDeletePop(false);
-        setSucessText('Room deleted! Refreshing page...');
-        
-        let unavail_slots = [];
-        axios({method: 'GET', url: unavail_url})
-        .then((res) => {
-            for (let i = 0; i < res.data.length; i++) {
-                let curr = res.data[i];
-                if (curr.room_id == selectedRoom.value)
-                    unavail_slots.push(curr);
-            }            
-            deleteUnavails(unavail_slots);
-            deleteRoomHelper();            
-        });
     }
 
     return (
