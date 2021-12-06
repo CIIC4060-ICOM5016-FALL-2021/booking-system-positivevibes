@@ -1,35 +1,16 @@
-import React, {Component, useEffect, useState} from 'react';
-import {Calendar, momentLocalizer, Views } from 'react-big-calendar';
+import React, {useEffect, useState} from 'react';
+import {Calendar, momentLocalizer} from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
-import {Button, Card, Container, Modal, Divider, Dropdown, Segment, Popup, Label} from "semantic-ui-react";
+import {Button, Container, Modal} from "semantic-ui-react";
 import axios from 'axios';
-import Select from 'react-select';
 
 import CONFIG from './config';
 import { parseFromDate } from './functions/DateChange';
-import AddRoom from './functions/AddRoom';
-import ModifyRoom from './functions/ModifyRoom';
-//import './RoomManagement.css';
 
-const authDictionary = {
-    "0": "Student",
-    "1": "Professor",
-    "2": "Department Staff"
-}
-const room_url = CONFIG.URL + '/rooms';
-const unavail_url = CONFIG.URL + '/user_unavailability';
+
 const sched_url = CONFIG.URL + '/users/schedule';
 const user = JSON.parse(localStorage.getItem('User'));
-
-// Event {
-//     title: string,
-//         start: Date,
-//         end: Date,
-//         allDay?: boolean
-//     resource?: any,
-// }
-
 
 function Schedule(){
 
@@ -48,14 +29,13 @@ function Schedule(){
 
         setTimeout(() => {}, 250);
         let user_dates = []
-        let room_selected = {
-            //room_id : selectedRoom.value,
+        let user_selected = {
             user_id : user.user_id,
             date : "none"
         }
         axios({
             method: 'GET',
-            params: room_selected,
+            params: user_selected,
             url: sched_url
         })
         .then((res) => {
@@ -65,12 +45,6 @@ function Schedule(){
             for (let i = 0; i < res.data['Scheduled'].length; i++)
                 tmp.push(res.data['Scheduled'][i]);
 
-                /*{
-                'title': 'Selection',
-                'allDay': false,
-                'start': new Date(selected.start),
-                'end': new Date(selected.end)
-            } */
             for (let i = 0; i < tmp.length; i++) {
                 let date_split = []
                 let start_split = []
