@@ -2,13 +2,24 @@ import React, {Component, useEffect, useState} from 'react';
 import {Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
-import {Button, Card, Container, Modal, Divider, Dropdown} from "semantic-ui-react";
+import {Button, Card, Container, Modal, Divider, Dropdown, Segment, Popup, Label} from "semantic-ui-react";
 import axios from 'axios';
 import Select from 'react-select';
 
 import CONFIG from './config';
 import { parseFromDate } from './functions/DateChange';
 import AddRoom from './functions/AddRoom';
+import ModifyRoom from './functions/ModifyRoom';
+
+const authDictionary = {
+    "0": "Student",
+    "1": "Professor",
+    "2": "Department Staff"
+}
+const room_url = CONFIG.URL + '/rooms';
+const unavail_url = CONFIG.URL + '/room_unavailability';
+const sched_url = CONFIG.URL + '/rooms/schedule';
+const user = JSON.parse(localStorage.getItem('User'));
 
 function BookMeeting(){
     const [dates, setDates] = useState([]);
@@ -25,13 +36,13 @@ function BookMeeting(){
     const [deleteBtn, setDeleteBtn] = useState('hidden');
     const [deletePop, setDeletePop] = useState(false);
     const [appointedRoom, setAppointedRoom] = useState({});
+    const [authLvlText, setAuthLvlText] = useState("<Please Select a Room>");
 
-    const room_url = CONFIG.URL + '/rooms';
-    const unavail_url = CONFIG.URL + '/room_unavailability';
-    const sched_url = CONFIG.URL + '/rooms/schedule';
-    const user = JSON.parse(localStorage.getItem('User'));
+    const [addRoomOpen, setAddRoomOpen] = useState(false);
+    const [modRoomOpen, setModRoomOpen] = useState(false);
 
-    const loadRooms = () => {
+    
+    useEffect(() => {
         axios({
             method: 'GET',
             url: room_url
@@ -41,28 +52,45 @@ function BookMeeting(){
             for(let i = 0; i < res.data.length; i++) {
                 room_list.push({
                     label: res.data[i].room_name,
-                    value: res.data[i].room_id
+                    value: res.data[i].room_id,
+                    authorization_level: res.data[i].authorization_level,
+                    building_id: res.data[i].building_id,
+                    room_capacity: res.data[i].room_capacity
                 })
             };
             setRooms(room_list);
             // console.log(res.data);
         });
-    }
-    
-    loadRooms();    
 
-    const toggleAddRoom = () => {
-        setOpen(!open);
-    }
+        axios({
+            method: 'GET',
+            url: unavail_url
+        })
+        .then((res) => {
+            setRawSchedules(res.data);
+            // console.log(res.data);
+        }); 
+    }, []);
 
     const switchRoom = (selected) => {
         setSelectedRoom(selected);
         setTimeout(() => {}, 250);
     }
 
+    const changeAuthText = () => {
+        // setAuthLvlText(authDictionary[selectedRoom.value.toString()]);
+        for(let i = 0; i < rooms.length; i++) {
+            if (rooms[i].value == selectedRoom.value) {
+                setAuthLvlText(authDictionary[rooms[i].authorization_level.toString()]);
+                break;
+            }
+        }
+    }
+
     const changeSelectedRoom = () => {
         setRoomDates([]);
         setDeleteBtn('visible');
+        changeAuthText();
         setTimeout(() => {}, 250);
         let room_dates = []
         let room_selected = {
@@ -82,7 +110,7 @@ function BookMeeting(){
                 tmp.push(res.data['Non-Scheduled'][i]);
             for (let i = 0; i < res.data['Scheduled'].length; i++)
                 tmp.push(res.data['Scheduled'][i]);
-            setRawSchedules(tmp);
+            // setRawSchedules(tmp);
             /*{
                 'title': 'Selection',
                 'allDay': false,
@@ -115,7 +143,7 @@ function BookMeeting(){
         if (selectedRoom.value != -1) {
             if (dates.length >= 1) {
                 setWarningText("");
-                console.log(dates);
+                // console.log(dates);
                 let start = dates[0].start.toString();
                 let end = dates[0].end.toString();
                 console.log(start, end);
@@ -162,7 +190,8 @@ function BookMeeting(){
 
         // fetch who appointed the room
         let e_info = parseFromDate(event.start, event.end);
-        // console.log(e_info)
+        //console.log(e_info)
+        //console.log(rawSchedules);
         let params = {
             "room_id" : selectedRoom.value,
             "user_id" : user.user_id,
@@ -174,7 +203,19 @@ function BookMeeting(){
             params: params,
             url: CONFIG.URL + '/rooms/appointed'
         })
-        .then((res) => setAppointedRoom(res.data))
+        .then((res) => {
+            if (!res.data.user_first_name){
+                setAppointedRoom({
+                    user_first_name: "Dept",
+                    user_last_name: "Staff",
+                    user_id: -1,
+                    user_email: "None"
+                })
+            }
+            else {
+                setAppointedRoom(res.data)                
+            }
+        })
     }
         
     const deleteRoom = () => {
@@ -203,49 +244,124 @@ function BookMeeting(){
         // })
     }
 
+    const deleteEvent = () => {
+        let sched_ID;
+        let e_info = parseFromDate(selected.start, selected.end);
+        for(let i = 0; i < rawSchedules.length; i++){
+            let curr = rawSchedules[i]
+            if (curr.room_start_time == e_info[1]
+                && curr.room_end_time == e_info[2]
+                && curr.room_unavail_date == e_info[0]
+                && curr.room_id == selectedRoom.value) {
+                //
+                sched_ID = curr.room_unavail_id.toString();
+                break;
+            }
+        }
+        console.log("Trying to delete event: ", sched_ID.toString());
+        axios({
+            method: 'DELETE',
+            url: unavail_url +"/"+ sched_ID
+        })
+        .then((res) => {
+            console.log("Success!")
+            setShowModify(false);
+            setSucessText('Event deleted! Refreshing page...')
+            setTimeout(function() {
+                //reload page
+                window.location.reload();
+            }, 2500);
+        })
+        .catch((err) => console.log(err))
+    }
+
+    const modifyRoom = () =>{
+        
+        // let roomInfo = {
+        //     "room_capacity": selectedRoom.value,
+        //     "authorization_level": parsed[0],
+        //     "building_id": parsed[1],
+        //     "room_name": parsed[2]
+        // }
+    }
+
     return (
-    <>
+        <>
+            <Container fluid style={{ alignItems: "center", justifyContent: "center" }}>  
+                <Popup
+                    content='Click the button to add a new room!'
+                    position='left center'
+                    trigger={
+                        <Button
+                        color={'green'}
+                        content={'Add a Room'}
+                        size={'medium'}
+                        onClick={() => setAddRoomOpen(true)}
+                />}
+                />
+                <Popup
+                    content='Click the modify button to modify the room'
+                    position='right center'
+                    trigger={
+                        <Button
+                        color={'orange'}
+                        content={'Modify a Room'}
+                        size={'medium'}
+                        onClick={() => setModRoomOpen(true)}
+                    />}
+                />
+                <Divider/>
+            </Container>
 
-    <Modal
-        centered={true}
-        open={open}
-        onClose={() => setOpen(false)}
-        onOpen={() => setOpen(true)}>
-        <Modal.Content>
-            <AddRoom/>
-        </Modal.Content>
-        <Modal.Actions>
-            <Button onClick={() => setOpen(false)}>CLOSE</Button>
-        </Modal.Actions>
-    </Modal>
-
-    <Container fluid style={{alignItems:"center", justifyContent:"center"}}>
-        <Button color="green" content='Add Room' size='big' onClick={toggleAddRoom}/>
-        <Divider />
-    </Container>
-
-    <Container fluid style={{alignItems:"center", justifyContent:"center"}}>
-        <Select name="Rooms" class = "ui fluid search dropdown"
+            <Container fluid style={{ alignItems: "center", justifyContent: "center" }}>
+        <Segment>
+        <Label attached='top'>Select a Room from the Dropdown Menu</Label>
+        <Select name="Rooms" class = "ui search dropdown"
             search
-            fluid
             options={rooms}
             onChange={switchRoom}
             style={{marginBottom: "1em"}}
         />
-         <Divider />
-        <Button
-            color="blue"
-            onClick={changeSelectedRoom}
-        > Select Room </Button>
-        <Button
-            color="black"
-            onClick={markRoom}
-        > Mark Room as unavailable </Button>
-        <Button
-            color="red"
-            style={{visibility: deleteBtn}}
-            onClick={() => setDeletePop(true)}
-        > Delete Room </Button>
+                </Segment>
+                <Divider />
+                <span className="success">Authorization Level: {authLvlText}</span>
+                <p/>
+                 <Popup
+                    content='First select a room from the dropdown
+                    and then click the select button to select the room'
+                    position='left center'
+                    trigger={
+                        <Button
+                        color={'blue'}
+                        onClick={changeSelectedRoom}
+                    >
+                        Select Room
+                    </Button>}
+                />
+                <Popup
+                    content='First select a room from the dropdown
+                    and then click the mark button to mark the room as unavailable'
+                    position='right center'
+                    trigger={
+                        <Button
+                        color={'black'}
+                        onClick={markRoom}
+                    >
+                        Mark Room as unavailable
+                    </Button>}
+                />
+                <Popup
+                    content='After selecting a room, click delete to delete the room'
+                    position='right center'
+                    trigger={
+                         <Button
+                        color={'red'}
+                        style={{visibility: deleteBtn}}
+                        onClick={() => setDeletePop(true)}
+                    >
+                        Delete Room
+                    </Button>}
+                />   
         <span className="warning">{warningText}</span>
         <span className="success">{sucessText}</span>
         <Divider />
@@ -285,17 +401,14 @@ function BookMeeting(){
             dimmer={'blurring'}
             onClose={() => setShowModify(false)}
             onOpen={() => setShowModify(true)}
-            trigger={<Button>Show Modal</Button>}
         >
             <Modal.Header>{user.user_name}</Modal.Header>
-                <Modal.Content>Scheduled by: {appointedRoom}</Modal.Content>
+                <Modal.Content>Scheduled by: {appointedRoom.user_first_name+' '+appointedRoom.user_last_name}</Modal.Content>
                 <Modal.Actions>
-                    <Button color="orange">Modify Event</Button>
-                    <Button color="red">Delete Event</Button>
-                <Button onClick={() => setShowModify(false)} color="green">Close Modal</Button>
+                    <Button onClick={deleteEvent} color="red">Delete Event</Button>
+                    <Button onClick={() => setShowModify(false)} color="green">CLOSE</Button>
             </Modal.Actions>
         </Modal>
-
 
         <Modal
             centered={false}
@@ -310,13 +423,41 @@ function BookMeeting(){
             dimmer={'blurring'}
             onClose={() => setDeletePop(false)}
             onOpen={() => setDeletePop(true)}
-            trigger={<Button>Show Modal</Button>}
         >
             <Modal.Header>Are you sure you want to delete {selectedRoom.label}?</Modal.Header>
             <Modal.Content>This will delete everything related to this room including schedules.</Modal.Content>
                 <Modal.Actions>
                     <Button onClick={deleteRoom} color="red">Delete Room</Button>
                     <Button onClick={() => setDeletePop(false)}>Cancel</Button>
+            </Modal.Actions>
+        </Modal>
+
+        
+        <Modal
+            centered={true}
+            open={addRoomOpen}
+            onClose={() => setAddRoomOpen(false)}
+            onOpen={() => setAddRoomOpen(true)}         
+            >
+            <Modal.Content>
+                <AddRoom/>
+            </Modal.Content>
+            <Modal.Actions>
+                <Button onClick={() => setAddRoomOpen(false)}>CLOSE</Button>
+            </Modal.Actions>
+        </Modal>
+
+        <Modal
+            centered={true}
+            open={modRoomOpen}
+            onClose={() => setModRoomOpen(false)}
+            onOpen={() => setModRoomOpen(true)}         
+            >
+            <Modal.Content>
+                <ModifyRoom/>
+            </Modal.Content>
+            <Modal.Actions>
+                <Button onClick={() => setModRoomOpen(false)}>CLOSE</Button>
             </Modal.Actions>
         </Modal>
         
