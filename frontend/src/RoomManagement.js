@@ -38,6 +38,8 @@ function BookMeeting(){
     const [deleteBtn, setDeleteBtn] = useState('hidden'); // delete room visibility
     const [deletePop, setDeletePop] = useState(false); // delete confirmation popup
     const [appointedRoom, setAppointedRoom] = useState({}); // who appointed a room (user)
+    const [allInvitees, setAllInvitees] = useState([]); // holds all invitees of selected event
+    const [inviteeEmails, setInviteeEmails] = useState(""); // holds all invitee emails of selected event
     const [authLvlText, setAuthLvlText] = useState("<Please Select a Room>"); // to display the auth lvl of room
 
     const [addRoomOpen, setAddRoomOpen] = useState(false); // boolean to show add room form
@@ -180,6 +182,8 @@ function BookMeeting(){
     const handleSelectedEvent = (event) => {
         setSelected(event);
         setShowModify(true);
+        setAllInvitees([]);
+        setInviteeEmails("");
         // console.log(event);
         // console.log(event.start, event.end)
 
@@ -198,13 +202,12 @@ function BookMeeting(){
         for (let i = 0; i < allSchedules.length; i++) {
             if (allSchedules[i].schedule_date == e_info[0]
                 && allSchedules[i].schedule_start_time == e_info[1]
-                && allSchedules[i].schedule_end_time == e_info[2]) {                    
+                && allSchedules[i].schedule_end_time == e_info[2]
+                && allSchedules[i].room_id == selectedRoom.value) {                    
                 sched_id = allSchedules[i].schedule_id;
                 break;
             }
         }
-        console.log("event ", e_info);
-        console.log("Sched ID ", sched_id);
 
         if (sched_id){
             axios({
@@ -213,6 +216,18 @@ function BookMeeting(){
                 url: CONFIG.URL + '/rooms/appointed'
             })
             .then((res) => setAppointedRoom(res.data))
+            axios({method: 'GET', url: CONFIG.URL + '/invitee/schedule/' + sched_id.toString()})
+            .then((res) => {
+                setAllInvitees(res.data);
+                let emailString = ""
+                for (let i = 0; i < res.data.length; i++) {
+                    if (i != res.data.length - 1) 
+                        emailString += res.data[i].user_email + ", "
+                    else
+                        emailString += res.data[i].user_email
+                }
+                setInviteeEmails(emailString);
+            })
         }
         else{
             setAppointedRoom({
@@ -409,6 +424,7 @@ function BookMeeting(){
         >
             <Modal.Header>{user.user_name}</Modal.Header>
                 <Modal.Content>Scheduled by: {appointedRoom.user_first_name+' '+appointedRoom.user_last_name}</Modal.Content>
+                <Modal.Content>{inviteeEmails == "" ? "" : `Invited users: ${inviteeEmails}`}</Modal.Content>
                 <Modal.Actions>
                     <Button onClick={deleteEvent} color="red">Delete Event</Button>
                     <Button onClick={() => setShowModify(false)} color="green">CLOSE</Button>
