@@ -9,6 +9,8 @@ import LogOut from "./LogOut";
 import UserStats from './UserStats';
 import RoomManagement from './RoomManagement';
 import Profile from './Profile';
+import axios from 'axios';
+import CONFIG from './config';
 //import './UserView.css';
 
 function UserView(){
@@ -16,6 +18,14 @@ function UserView(){
     const user = JSON.parse(localStorage.getItem('User'))
     if (!user)
         window.location.href = window.location.origin + "/Home"
+    else{
+        axios({method: "GET", url: CONFIG.URL + "/users/" + user.user_id})
+        .then((res)=>localStorage.setItem('User', JSON.stringify(res.data)))
+        .catch((err)=>{
+            console.log(err)
+            localStorage.removeItem('User')
+        })
+    }
 
     useEffect(() => {
         if (user['authorization_level'] == 2) // 2 is the highest auth_lvl
