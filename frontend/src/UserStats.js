@@ -22,9 +22,6 @@ function UserStats(){
     const userURL = CONFIG.URL + '/users/statistics/' + userID + '/user';
     const roomURL = CONFIG.URL + '/users/statistics/' + userID + '/room';
 
-    console.log(roomURL);
-    console.log(userURL);
-
     useEffect(() => {
         // fetch most booked with user
         axios({

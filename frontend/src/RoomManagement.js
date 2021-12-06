@@ -10,6 +10,7 @@ import CONFIG from './config';
 import { parseFromDate } from './functions/DateChange';
 import AddRoom from './functions/AddRoom';
 import ModifyRoom from './functions/ModifyRoom';
+//import './RoomManagement.css';
 
 const authDictionary = {
     "0": "Student",
@@ -22,31 +23,29 @@ const sched_url = CONFIG.URL + '/rooms/schedule';
 const user = JSON.parse(localStorage.getItem('User'));
 
 function BookMeeting(){
-    const [dates, setDates] = useState([]);
-    const [roomDates, setRoomDates] = useState([]);
+    const [dates, setDates] = useState([]); // current selected 'event'
+    const [roomDates, setRoomDates] = useState([]); // holds parsed r_unavails
     const [open, setOpen] = useState(false);
     const localizer = momentLocalizer(moment);
-    const [rooms, setRooms] = useState([]);
+    const [rooms, setRooms] = useState([]); // get from rooms
     const [selectedRoom, setSelectedRoom] = useState({'text': 'Select Room', 'value': -1});
     const [warningText, setWarningText] = useState("");
     const [sucessText, setSucessText] = useState("");
-    const [selected, setSelected] = useState({});
-    const [rawSchedules, setRawSchedules] = useState([]);
-    const [showModify, setShowModify] = useState(false);
-    const [deleteBtn, setDeleteBtn] = useState('hidden');
-    const [deletePop, setDeletePop] = useState(false);
-    const [appointedRoom, setAppointedRoom] = useState({});
-    const [authLvlText, setAuthLvlText] = useState("<Please Select a Room>");
+    const [selected, setSelected] = useState({}); // selected event
+    const [rawSchedules, setRawSchedules] = useState([]); // get from r_unavail
+    const [allSchedules, setAllSchedules] = useState([]); // get from schedules
+    const [showModify, setShowModify] = useState(false); // boolean to show event popup modification
+    const [deleteBtn, setDeleteBtn] = useState('hidden'); // delete room visibility
+    const [deletePop, setDeletePop] = useState(false); // delete confirmation popup
+    const [appointedRoom, setAppointedRoom] = useState({}); // who appointed a room (user)
+    const [authLvlText, setAuthLvlText] = useState("<Please Select a Room>"); // to display the auth lvl of room
 
-    const [addRoomOpen, setAddRoomOpen] = useState(false);
-    const [modRoomOpen, setModRoomOpen] = useState(false);
+    const [addRoomOpen, setAddRoomOpen] = useState(false); // boolean to show add room form
+    const [modRoomOpen, setModRoomOpen] = useState(false); // boolean to show modify room form
 
     
     useEffect(() => {
-        axios({
-            method: 'GET',
-            url: room_url
-        })
+        axios({method: 'GET', url: room_url})
         .then((res) => {
             let room_list = []
             for(let i = 0; i < res.data.length; i++) {
@@ -59,17 +58,13 @@ function BookMeeting(){
                 })
             };
             setRooms(room_list);
-            // console.log(res.data);
         });
 
-        axios({
-            method: 'GET',
-            url: unavail_url
-        })
-        .then((res) => {
-            setRawSchedules(res.data);
-            // console.log(res.data);
-        }); 
+        axios({method: 'GET', url: unavail_url})
+        .then((res) => {setRawSchedules(res.data)}); 
+
+        axios({method: 'GET', url: CONFIG.URL + '/schedule'})
+        .then((res) => setAllSchedules(res.data));
     }, []);
 
     const switchRoom = (selected) => {
@@ -110,8 +105,8 @@ function BookMeeting(){
                 tmp.push(res.data['Non-Scheduled'][i]);
             for (let i = 0; i < res.data['Scheduled'].length; i++)
                 tmp.push(res.data['Scheduled'][i]);
-            // setRawSchedules(tmp);
-            /*{
+
+                /*{
                 'title': 'Selection',
                 'allDay': false,
                 'start': new Date(selected.start),
@@ -198,50 +193,70 @@ function BookMeeting(){
             "date" : e_info[0],
             "time" : e_info[1]
         }
-        axios({
-            method: 'GET',
-            params: params,
-            url: CONFIG.URL + '/rooms/appointed'
-        })
-        .then((res) => {
-            if (!res.data.user_first_name){
-                setAppointedRoom({
-                    user_first_name: "Dept",
-                    user_last_name: "Staff",
-                    user_id: -1,
-                    user_email: "None"
-                })
+
+        let sched_id;
+        for (let i = 0; i < allSchedules.length; i++) {
+            if (allSchedules[i].schedule_date == e_info[0]
+                && allSchedules[i].schedule_start_time == e_info[1]
+                && allSchedules[i].schedule_end_time == e_info[2]) {                    
+                sched_id = allSchedules[i].schedule_id;
+                break;
             }
-            else {
-                setAppointedRoom(res.data)                
-            }
-        })
+        }
+        console.log("event ", e_info);
+        console.log("Sched ID ", sched_id);
+
+        if (sched_id){
+            axios({
+                method: 'GET',
+                params: params,
+                url: CONFIG.URL + '/rooms/appointed'
+            })
+            .then((res) => setAppointedRoom(res.data))
+        }
+        else{
+            setAppointedRoom({
+                user_first_name: "Dept",
+                user_last_name: "Staff",
+                user_id: -1,
+                user_email: "None"
+            })
+        }
+
+        
     }
         
+    const deleteUnavails = (unavail_slots) => {
+        // delete all unavailabilities related to the selected room
+        // this takes care of schedule, invitees, and both user and room unavailability
+        for (let i = 0; i < unavail_slots.length; i++) {
+            axios({method: 'DELETE', url: unavail_url + '/' + unavail_slots[i].room_unavail_id});
+        }
+    }
+    const deleteRoomHelper = () => {
+        axios({method: 'DELETE', url: room_url + '/' + selectedRoom.value.toString()})
+        .then((res) => {
+            setDeletePop(false);
+            setSucessText('Room deleted! Refreshing page...');
+            setTimeout(() => window.location.reload(), 2500);
+        })
+        .catch((err) => deleteRoomHelper()) // please do not do this elsewhere c:
+    }
     const deleteRoom = () => {
         setDeletePop(false);
-        setSucessText('Room deleted! Refreshing page...')
-        console.log("Trying to delete room with id: ", selectedRoom.value.toString());
-        setTimeout(function() {
-            //reload page
-            window.location.reload();
-        }, 5000);
-        // axios({
-        //     method: 'DELETE',
-        //     url: CONFIG.URL + '/rooms/' + selectedRoom.value.toString()
-        // })
-        // .then((res) => {
-        //     setDeletePop(false);
-        //     setSucessText('Room deleted! Refreshing page...')
-        //     console.log("Trying to delete room with id: ", selectedRoom.value.toString());
-        //     setTimeout(function() {
-        //         //reload page
-        //         window.location.reload();
-        //     }, 5000);
-        // })
-        // .catch((err) => {
-
-        // })
+        setSucessText('Room deleted! Refreshing page...');
+        
+        let unavail_slots = [];
+        axios({method: 'GET', url: unavail_url})
+        .then((res) => {
+            for (let i = 0; i < res.data.length; i++) {
+                let curr = res.data[i];
+                if (curr.room_id == selectedRoom.value)
+                    unavail_slots.push(curr);
+            }            
+            deleteUnavails(unavail_slots);
+            deleteRoomHelper();            
+        });
     }
 
     const deleteEvent = () => {
@@ -273,16 +288,6 @@ function BookMeeting(){
             }, 2500);
         })
         .catch((err) => console.log(err))
-    }
-
-    const modifyRoom = () =>{
-        
-        // let roomInfo = {
-        //     "room_capacity": selectedRoom.value,
-        //     "authorization_level": parsed[0],
-        //     "building_id": parsed[1],
-        //     "room_name": parsed[2]
-        // }
     }
 
     return (

@@ -9,6 +9,7 @@ import LogOut from "./LogOut";
 import UserStats from './UserStats';
 import RoomManagement from './RoomManagement';
 import Profile from './Profile';
+//import './UserView.css';
 
 function UserView(){
     const [isAuth, setIsAuth] = useState(false)
@@ -50,7 +51,7 @@ function UserView(){
         menuItem: 'Log out', render: () => <LogOut/>
     })
 
-    return <Tab panes={panes}/>
+    return <Tab panes={panes} menu={{color:"black", inverted: true}}/>
 
 }
 export default UserView;

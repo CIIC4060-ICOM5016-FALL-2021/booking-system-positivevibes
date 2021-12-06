@@ -40,6 +40,20 @@ class Invitee:
         result = tuple
         result = self.build_row_dict(result)
         return jsonify(result)
+    
+    def getInviteesBySchedId(self, schedule_id):
+        dao = InviteeDAO()
+        tuples = dao.getInviteesBySchedId(schedule_id)
+        res = []
+        for t in tuples:
+            res.append({
+                'user_id': t[0],
+                'user_email': t[1],
+                'first_name': t[2],
+                'last_name': t[3],
+                'invitee_id': t[4]
+            })
+        return jsonify(res)
 
     def updateInvitee(self, json):
         invitee_id = json['invitee_id']

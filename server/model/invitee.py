@@ -23,6 +23,15 @@ class InviteeDAO():
         result = cursor.fetchone()
         return result
 
+    def getInviteesBySchedId(self, schedule_id):
+        cursor = self.conn.cursor()
+        query = "select user_id, user_email, first_name, last_name, invitee_id from users natural inner join invitee where schedule_id = %s"
+        cursor.execute(query, (schedule_id,))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
     def updateInvitee(self, invitee_id, user_id, schedule_id):
         cursor = self.conn.cursor()
         query = "update invitee set user_id=%s, schedule_id=%s where invitee_id=%s;"

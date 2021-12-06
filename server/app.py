@@ -399,6 +399,18 @@ def invitee_byid_route(invitee_id):
         res.headers['Access-Control-Allow-Origin'] = '*'
         return res
 
+@app.route('/API/invitee/schedule/<int:schedule_id>', methods=['GET'])
+def invitee_byschedid_route(schedule_id):
+    if request.method == 'GET':
+        res = make_response(Invitee().getInviteesBySchedId(schedule_id))
+        res.headers['Access-Control-Allow-Origin'] = '*'
+        return res
+    else:
+        err = {"error": "No such route"}
+        res = make_response(err)
+        res.headers['Access-Control-Allow-Origin'] = '*'
+        return res
+
 #13a. Find busiest hours (Find top 5)
 @app.route('/API/global/statistics/buesiesthours', methods=['GET'])
 def global_busiesthours():

@@ -27,8 +27,6 @@ function Profile() {
     };
 
     const inputField = (event) => {
-        console.log(event.target.name);
-        console.log(event.target.value);
         switch (event.target.name) {
             case 'firstName':
                 setUFirstName(event.target.value);
@@ -52,7 +50,6 @@ function Profile() {
             user_email: user.user_email,
             user_password: user.user_password
         }
-        console.log("New User", newUser);
         axios({
             method: 'PUT',
             url: url,
@@ -74,7 +71,6 @@ function Profile() {
             user_email: user.user_email,
             user_password: user.user_password
         }
-        console.log("New User", newUser);
         axios({
             method: 'PUT',
             url: url,
@@ -96,7 +92,6 @@ function Profile() {
             user_email: uEmail,
             user_password: user.user_password
         }
-        console.log("New User", newUser);
         axios({
             method: 'PUT',
             url: url,
@@ -118,7 +113,6 @@ function Profile() {
             user_email: user.user_email,
             user_password: uPassword,
         }
-        console.log("New User", newUser);
         axios({
             method: 'PUT',
             url: url,
