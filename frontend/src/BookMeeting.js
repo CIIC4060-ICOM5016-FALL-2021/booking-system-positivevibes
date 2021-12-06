@@ -205,6 +205,45 @@ function BookMeeting(){
         setWarningText("Your are not host of event.")
     }
 
+    const markTime = () => {
+            if (dates.length >= 1) {
+                setWarningText("");
+                let start = dates[0].start.toString();
+                let end = dates[0].end.toString();
+                console.log(start, end);
+                let parsed = parseFromDate(start, end)
+                console.log(parsed);
+        
+                let marking_slot = {
+                    "user_id": user.user_id,
+                    "user_date": parsed[0],
+                    "user_start_time": parsed[1],
+                    "user_end_time": parsed[2]
+                }
+
+                console.log(marking_slot);
+                
+                axios({
+                    method: 'POST',
+                    url: unavail_url,
+                    data: marking_slot,
+                    headers: {'Content-Type': 'application/json'}
+                })
+                .then((res) => {
+                    setSucessText("Time marked as unavailable successfully.");
+                    setTimeout(function() {
+                        //reload page
+                        window.location.reload();
+                    }, 2000);
+                })
+            }
+            else { // Please select a time frame to mark
+                setWarningText("Please select a time frame to mark.");
+            }
+            
+        
+    }
+
         return <Container style={{ height: 800 }}>
        < Calendar
             selectable
@@ -271,8 +310,9 @@ function BookMeeting(){
         > Book Meeting </Button>
         <Button
             fluid
-            onClick={() => {setOpen(true)}}
-        > Mark time as unavailable</Button>
+            color={'black'}
+            onClick={markTime}
+            >Mark time as unavailable</Button>
     </Container>
     </Container>
 
