@@ -12,6 +12,7 @@ function Profile() {
     const [uLastName, setULastName] = useState('');
     const [uEmail, setUEmail] = useState('');
     const [uPassword, setUPassword] = useState('');
+    const [warningText, setWarningText] = useState("");
 
     const dictionary = {
         "0": "Student",
@@ -131,6 +132,23 @@ function Profile() {
         });
     };
 
+    const deleteUser = () => {
+        axios({
+            method: 'DELETE',
+            url: url +"/"+ user.user_id
+        })
+        .then((res) => {
+            console.log("Success!")
+            localStorage.removeItem('User');
+            setTimeout(function() {
+                //reload page
+                window.location.href = window.location.origin+"/Home"
+            }, 2000);
+        })
+        .catch((err) => console.log(err))
+        setWarningText("User is invited to a meeting or has an unavailable timeframe.")
+    }
+
      
     return (
         <>
@@ -141,7 +159,8 @@ function Profile() {
                 >
                     Click on the green buttons to edit the user information
                 </Segment>
-                <Button color={'red'}>Delete user?</Button>
+                <Button color={'red'} onClick={deleteUser}>Delete account</Button>
+                <span className="warning">{warningText}</span>
             <Table color={'violet'} inverted compact celled collapsing textAlign={"center"}>
                 <Table.Header>
                     <Table.Row>
