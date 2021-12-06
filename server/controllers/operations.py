@@ -27,7 +27,7 @@ class Operations():
         time = json['time']
         user = dao.whoAppointedRoom(room_id, user_id, date, time)
         if user == 'error':
-            return jsonify({"error": "Authorization level not met or no user found for appointment during that time frame at room {}".format(room_id)})
+            return jsonify({"error": "No user found for appointment during that time frame at room {}".format(room_id)})
         result = {
             "user_id": user[0],
             "user_email": user[1],
