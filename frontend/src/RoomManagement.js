@@ -108,7 +108,7 @@ function BookMeeting(){
             for (let i = 0; i < res.data['Scheduled'].length; i++)
                 tmp.push(res.data['Scheduled'][i]);
 
-                /*{
+            /*{
                 'title': 'Selection',
                 'allDay': false,
                 'start': new Date(selected.start),

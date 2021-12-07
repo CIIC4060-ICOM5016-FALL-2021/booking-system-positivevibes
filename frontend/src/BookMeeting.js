@@ -2,9 +2,10 @@ import React, {useEffect, useReducer, useState} from 'react';
 import {Calendar, momentLocalizer} from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
-import {Button, Container, Modal, Dropdown} from "semantic-ui-react";
+import {Button, Container, Modal, Dropdown, Divider, Form, Message, Label, Popup, Header} from "semantic-ui-react";
 import axios from 'axios';
 import Select from 'react-select';
+import './BookMeeting.css';
 
 import CONFIG from './config';
 import { parseFromDate } from './functions/DateChange';
@@ -17,6 +18,7 @@ const authDictionary = {
 
 //const invitee_url = CONFIG.URL + '/invitee';
 const user_url = CONFIG.URL + '/users';
+const roomAvail_url = CONFIG.URL + "/rooms/availability"
 const available_url = CONFIG.URL + '/schedule/available';
 const room_url = CONFIG.URL + '/rooms';
 const unavail_url = CONFIG.URL + '/user_unavailability';
@@ -30,10 +32,12 @@ function BookMeeting(){
     const localizer = momentLocalizer(moment);
     const [selected, setSelected] = useState({}); // selected event
     const [allSchedules, setAllSchedules] = useState([]); // get from schedules
-    const [showModify, setShowModify] = useState(false); // boolean to show event popup modification
+    const [showEvent, setShowEvent] = useState(false); // boolean to show event popup modification
     const [appointedRoom, setAppointedRoom] = useState({}); // who appointed a room (user)
     const [allInvitees, setAllInvitees] = useState([]); // holds all invitees of selected event
     const [inviteeEmails, setInviteeEmails] = useState(""); // holds all invitee emails of selected event
+    const [selectedInvitees, setSelectedInvitees] = useState([]); // holds all invitees of selected event
+    const [invsToRmv, setInvsToRmv] = useState([]);
     const [rawSchedules, setRawSchedules] = useState([]); // get from r_unavail
     const [selectedRoom, setSelectedRoom] = useState({'text': 'Select Room', 'value': -1});
     const [sucessText, setSucessText] = useState("");
@@ -48,10 +52,14 @@ function BookMeeting(){
     const [availableTimes, setAvailableTimes] = useState("");
     const [eventInvitees, setEventInvitees] = useState("");
     const [availableRooms, setAvailableRooms] = useState([]);
-
+    const [roomOptions, setRoomOptions] = useState([]);
+    const [currEvent, setCurrEvent] = useState("");
+    const [showModify, setShowModify] = useState(false);
+    const [eventNewInfo, setEventNewInfo] = useState({});
 
     useEffect(() => {
         setUserDates([]);
+        setRoomOptions([]);
 
         setTimeout(() => {}, 250);
         let user_dates = []
@@ -118,7 +126,7 @@ function BookMeeting(){
                     label: res.data[i].room_name,
                     value: res.data[i].room_id,
                     //authorization_level: res.data[i].authorization_level,
-                })
+                    })
                 }
             };
             setAvailableRooms(room_list);
@@ -129,7 +137,8 @@ function BookMeeting(){
     const handleSelectedEvent = (event) => {
         setWarningText("")
         setSelected(event);
-        setShowModify(true);
+        setShowEvent(true);
+        setCurrEvent({});
         //setAllInvitees([]);
         setInviteeEmails("");
 
@@ -157,6 +166,7 @@ function BookMeeting(){
                                 params.room_id = allSchedules[i].room_id
                                 found = true;
                                 setSelectedEventID(sched_id);
+                                setCurrEvent(allSchedules[i])
                                 console.log(sched_id)
                                 break;
 
@@ -178,13 +188,17 @@ function BookMeeting(){
             axios({method: 'GET', url: CONFIG.URL + '/invitee/schedule/' + sched_id.toString()})
             .then((res) => {
                 let emailString = ""
+                let invs = []
                 for (let i = 0; i < res.data.length; i++) {
                     if (i != res.data.length - 1) 
                         emailString += res.data[i].user_email + ", "
                     else
                         emailString += res.data[i].user_email
+                    if (res.data[i].user_id != user.user_id)
+                        invs.push({...res.data[i], label: res.data[i].user_email, value: res.data[i].user_id});
                 }
                 setInviteeEmails(emailString);
+                setSelectedInvitees(invs);
             })
         }
         else{
@@ -194,12 +208,80 @@ function BookMeeting(){
                 user_id: user.user_id,
                 user_email: user.user_email
             })
+            setCurrEvent({
+                schedule_name: 'Marked as busy',
+                schedule_description: 'Marked as busy'
+            })
         }
         
     }
 
     const modifyEvent = () =>{
+        // Modify event would be modify schedule
+        // Check if event is "scheduled = 0" aka "Marked as busy"
+        // then check if schedule.user_id = logged_in_user.user_id
+        setWarningText("");
+        if (!currEvent.schedule_id)
+            setWarningText("Cannot modify times marked as busy.");
+        else if (currEvent.user_id != user.user_id)
+            setWarningText("Cannot modify other people's schedules.");
+        else {
+            setShowEvent(false);
+            setEventNewInfo({
+                schedule_name: currEvent.schedule_name,
+                schedule_description: currEvent.schedule_description
+            })
+            setShowModify(true);            
+        }
+    }
+
+    const modifyEventSet = (event) => {
+        if (event.target.name == 'event_name')
+            setEventNewInfo({...eventNewInfo, schedule_name: event.target.value})
+        else if (event.target.name == 'event_description')
+            setEventNewInfo({...eventNewInfo, schedule_description: event.target.value})        
+    }
+
+    const modifyEventSubmit = () => {
+        let sn = eventNewInfo.schedule_name;
+        let sd = eventNewInfo.schedule_description;
+        let new_event = {
+            schedule_id: currEvent.schedule_id,
+            schedule_name: sn ? sn : currEvent.schedule_name,
+            schedule_description: sd ? sd : currEvent.schedule_description,            
+            schedule_date: currEvent.schedule_date,
+            schedule_start_time: currEvent.schedule_start_time,
+            schedule_end_time: currEvent.schedule_end_time,
+            room_id: currEvent.room_id,
+            user_id: currEvent.user_id
+        }
         
+        axios({method: 'PUT', data: new_event, url: CONFIG.URL + '/schedule',
+               headers: {'Content-Type': 'application/json'}})
+        .then(() => {
+            setShowModify(false);
+            setTimeout(() => window.location.reload(), 1000);
+        });
+    }
+
+    const deleteInvitees = () => {
+        if (!invsToRmv || invsToRmv.length == 0){
+            setShowModify(false);            
+            setTimeout(() => window.location.reload(), 1500);
+        }
+        
+        let toDelete = invsToRmv.pop().invitee_id;
+        console.log(toDelete)
+
+        axios({method: 'DELETE', url: CONFIG.URL + '/invitee/' + toDelete})
+        .then((res) => {
+            if (invsToRmv.length > 0)
+                deleteInvitees();
+            else {
+                setShowModify(false);            
+                setTimeout(() => window.location.reload(), 1500);
+            }
+        })
     }
 
     const deleteEvent = () => {
@@ -239,7 +321,7 @@ function BookMeeting(){
         })
         .then((res) => {
             console.log("Success!")
-            setShowModify(false);
+            setShowEvent(false);
             setSucessText('Event deleted! Refreshing page...')
             setTimeout(function() {
                 //reload page
@@ -291,11 +373,12 @@ function BookMeeting(){
 
     const getAvailableTimes = () =>{
         setAvailableTimes("")
+        setWarningText("");
         let inv = "";
         for(let i = 0; i < eventInvitees.length; i++){
             inv += eventInvitees[i].value +",";        
         }
-        inv += user.user_id.toString();
+        inv += user.user_id.toString(); // inv = "3,4,5"
         // console.log(newEventDate)
         // console.log(inv);
         let param = {
@@ -308,9 +391,21 @@ function BookMeeting(){
             url: available_url
         })
         .then((res) => {
-            setAvailableTimes(res.data);
+            if (typeof res.data.available_time_slots !== 'string'){
+                let str = ""
+                for (let i = 0; i < res.data.available_time_slots.length; i++) {
+                    if (i == res.data.available_time_slots.length - 1)
+                        str += res.data.available_time_slots[i]
+                    else
+                        str += res.data.available_time_slots[i] + ', '
+                }                    
+                setAvailableTimes(str);
+            }
+            else 
+                setAvailableTimes(res.data.available_time_slots);
             //console.log(res.data)
         })
+        .catch((err) => setWarningText("Please recheck date is correct."))
     }
 
     const switchAvailableRoom = (selected) => {
@@ -320,6 +415,7 @@ function BookMeeting(){
 
     const makeEvent = () => {
         setWarningText("");
+        setAvailableTimes("");
         let inv = [];
         for(let i = 0; i < eventInvitees.length; i++){
             inv.push(parseInt(eventInvitees[i].value));        
@@ -354,8 +450,48 @@ function BookMeeting(){
         })
     }
 
-        return <Container style={{ height: 800 }}>
-       < Calendar
+    const getAvailableRooms = () =>{
+        let room_holder = [];
+        let param = {
+            date : newEventDate,
+            start_time : newEventStartTime.target.value,
+            end_time : newEventEndTime.target.value
+        }
+        axios({
+            method: 'GET',
+            params: param,
+            url: roomAvail_url
+        })
+        .then((res) => {
+            for(let i = 0; i < res.data.length; i++) {
+                for(let j = 0; j < availableRooms.length; j++) {    
+                    if(availableRooms[j].value == res.data[i].room_id) {
+                        room_holder.push(availableRooms[j]);
+                        break;
+                    }
+                }
+            }
+            setRoomOptions(room_holder);
+        })
+      
+    }
+
+    return (
+    <Container style={{ height: 800 }}>
+        <Container fluid style={{alignItems:"center", justifyContent:"center"}}>
+            <Button 
+                color = {'green'}
+                onClick={() => {setOpen(true)}}
+            > Book Meeting 
+            </Button>
+            <Button
+                color={'black'}
+                onClick={markTime}
+            >Mark time as unavailable
+            </Button>
+        </Container>
+        <Divider/>
+        <Calendar
             selectable
             selected={selected}
             onSelectEvent={handleSelectedEvent}
@@ -371,7 +507,7 @@ function BookMeeting(){
                 'start': new Date(selected.start),
                 'end': new Date(selected.end)
             }])}
-                        >            
+            >            
         </Calendar>
         <Modal
             centered={false}
@@ -382,115 +518,245 @@ function BookMeeting(){
                 marginLeft: "25%",
                 marginTop:"10%",
             }}
-            open={showModify}
+            open={showEvent}
             dimmer={'blurring'}
-            onClose={() => setShowModify(false)}
-            onOpen={() => setShowModify(true)}
+            onClose={() => setShowEvent(false)}
+            onOpen={() => setShowEvent(true)}
         >
             <Modal.Header>{user.user_name}</Modal.Header>
-                <Modal.Content>Scheduled by: {appointedRoom.user_first_name+' '+appointedRoom.user_last_name}</Modal.Content>
-                <Modal.Content>{inviteeEmails == "" ? "" : `Invited users: ${inviteeEmails}`}</Modal.Content>
+                <Modal.Content>
+                    <Modal.Description>
+                        <p>
+                            {
+                                currEvent == {} ? "" : `Event Name: ${currEvent.schedule_name}`
+                            }
+                        </p>
+                    </Modal.Description>
+                </Modal.Content>
+                <Modal.Content>
+                    <Modal.Description>
+                        <p>
+                            {
+                                currEvent == {} ? "" : `Event Description: ${currEvent.schedule_description}`
+                            }
+                        </p>
+                    </Modal.Description>
+                </Modal.Content>        
+                <Modal.Content>
+                    <Modal.Description>
+                        <Header>Scheduled by:</Header>
+                        <p>
+                            {    
+                                appointedRoom.user_first_name + ' ' + appointedRoom.user_last_name
+                            }   
+                        </p>
+                    </Modal.Description>
+                </Modal.Content>
+                <Modal.Content>
+                    <Modal.Description>
+                        <p>
+                            {  
+                            inviteeEmails == "" ? "" : `Invited users: ${inviteeEmails}`
+                            }
+                        </p>
+                    </Modal.Description>
+                </Modal.Content>
+                <label className="warning">{warningText}</label>
                 <Modal.Actions>
                     <Button onClick={modifyEvent} color="orange">Modify Event</Button>
                     <Button onClick={deleteEvent} color="red">Delete Event</Button>
-                    <span className="warning">{warningText}</span>
-                    <Button onClick={() => setShowModify(false)} color="green">CLOSE</Button>
+                    <Button onClick={() => setShowEvent(false)} color="green">CLOSE</Button>
             </Modal.Actions>
         </Modal>
+
+
         <Modal
-            centered={false}
+            centered={true}
             open={open}
             onClose={() => setOpen(false)}
             onOpen={() => setOpen(true)}
-        >
-            <div className="wrapper">
-            <div className="card">
-                <div className="heading">
-                    <h4>Create event</h4>
-                    <span className="warning">{warningText}</span>
-                    <span className="success">{sucessText}</span>
-                </div>
-                <div className="input_field">
-                    <input type="text"autoComplete="off" onChange={setNewEventName} required />
-                    <span>Name of event</span>
-                </div>
-                <div className="input_field">
-                    <input type="text"autoComplete="off" onChange={setNewEventDesc} required />
-                    <span>Description of event</span>
-                </div>
+            style={{marginLeft:"15%"}}
+            >
+        <Modal.Header>
+           Create event
+        </Modal.Header>
+        <Modal.Content>
+           
+            <Form>
+                <span className="warning">{warningText}</span>
+                <span className="success">{sucessText}</span>
+                <Form.Field>
+                    <label>Name of Event</label>
+                    <input type="text"
+                        autoComplete="off"
+                        onChange={setNewEventName} 
+                        required 
+                        placeholder="Name of Event" />
+                </Form.Field>
+                <Form.Field>
+                    <label>Description of event</label>
+                    <input type="text" 
+                        autoComplete="off" 
+                        onChange={setNewEventDesc}
+                        required
+                        placeholder="Description of Event"/>
+                </Form.Field>
+                <Form.Field>
+                    <label>Users to invite</label>
+                    <Select name="Rooms" 
+                        class = "ui search dropdown"
+                        search
+                        isMulti = {true}
+                        options={emails}
+                        onChange = {(event) => {setEventInvitees(event)}}
+                        style={{marginBottom: "1em"}}
+                        placeholder="Select users to invite..."
+                    />
+                </Form.Field>
+                <Form.Field>
+                    <label>Date (YYYY-MM-DD)</label>
+                    <input type="text"     
+                        autoComplete="off"     
+                        onChange={(event) => { setNewEventDate(event.target.value) }}
+                        required />
+                </Form.Field>
+                        <Message>Invitees availability to event will be displayed once a date is chosen</Message>
+                <Form.Field>
+                <Popup
+                    trigger=
+                    {
+                        <Button color={'orange'} onClick={getAvailableTimes}>
+                            Get available times
+                        </Button>
+                    }
+                    on='click'
+                    content={<>{availableTimes}</>}
+                    position='right center'
+                    hideOnScroll
+                        /> 
+                </Form.Field>
+                <Form.Field>
+                    <label>Start Time (HH:MM:SS)</label>
+                    <input type="text"
+                        autoComplete="off" 
+                        onChange={setNewEventStartTime} 
+                        required
+                        placeholder="Start Time"/>
+                </Form.Field>
+                <Form.Field>
+                    <label>End Time (HH:MM:SS)</label>
+                    <input type="text"
+                        autoComplete="off"
+                        onChange={setNewEventEndTime}
+                        required
+                        placeholder="End Time"/> 
+                </Form.Field>
+                <Message>Select data and timeframe for room options to be available.</Message>
+                <Form.Field>
+                    <Popup
+                        trigger=
+                        {
+                            <Button
+                                color={'orange'}
+                                onClick={getAvailableRooms}>
+                                    Get available rooms
+                            </Button>
+                        }
+                        mouseEnterDelay={500}
+                        mouseLeaveDelay={500}
+                        on='click'
+                        content={'Available rooms will show now...'}
+                        positition='right center'
+                        hideOnScroll
+                    /> 
+                </Form.Field>
+                <Form.Field>
+                    <label>Select a Room</label>
+                    <Select name="Rooms" class = "ui search dropdown"
+                        placeholder = "Select a Room"
+                        search
+                        options={roomOptions}
+                        onChange={switchAvailableRoom}
+                        style={{marginBottom: "1em"}}
+                    />
+                </Form.Field>
+    
+                <Form.Field>
+                    <label className="warning">{warningText}</label>
+                    <Button 
+                        color="green"  
+                        onClick={makeEvent}>
+                        Create event
+                    </Button>
+                    <Button onClick={() => { setOpen(false); setWarningText("") }} 
+                        color="grey"
+                        >Close
+                    </Button>
+                </Form.Field>
+            </Form>
+        </Modal.Content>
+    </Modal>
 
-                <span>Users to invite</span>
-                <Select name="Rooms" class = "ui search dropdown"
+    <Modal
+        centered={false}
+        size={'small'}
+        style={{
+            height: "auto",
+            width: "auto",
+            marginLeft: "25%",
+            marginTop:"10%",
+        }}
+        open={showModify}
+        dimmer={'blurring'}
+        onClose={() => setShowModify(false)}
+        onOpen={() => setShowModify(true)}
+        >
+        <Modal.Header>{user.user_name}</Modal.Header>
+        <Form>
+            <Form.Field>
+                <label>Name of Event</label>
+                <input type="text"
+                    autoComplete="off"
+                    name="event_name"
+                    onChange={modifyEventSet}
+                    value={eventNewInfo.schedule_name} 
+                    required 
+                    placeholder="Name of Event" />
+            </Form.Field>
+            <Form.Field>
+                <label>Description of event</label>
+                <input type="text" 
+                    autoComplete="off"
+                    name="event_description" 
+                    onChange={modifyEventSet}
+                    value={eventNewInfo.schedule_description}
+                    required
+                    placeholder="Description of Event"/>
+            </Form.Field>
+        </Form>
+        <Modal.Actions>
+            <Button onClick={modifyEventSubmit} color="orange">Modify Event</Button>            
+        </Modal.Actions>
+        <Form>
+            <Form.Field>
+                <label>Invitees to remove</label>
+                <Select name="Invitees" 
+                    class = "ui search dropdown"
                     search
                     isMulti = {true}
-                    options={emails}
-                    onChange = {(event) => {setEventInvitees(event)}}
+                    options={selectedInvitees}
+                    onChange = {(event) => {setInvsToRmv(event)}}
                     style={{marginBottom: "1em"}}
+                    placeholder="Select users to invite..."
                 />
-
-                {/* <Dropdown 
-                placeholder='Whom shall we invite?' 
-                fluid
-                multiple
-                search
-                selection
-                options={emails} /> */}
-                <p/>
-                <p/>
-                <div className="input_field">
-                    <input type="text"autoComplete="off" onChange={(event)=>{setNewEventDate(event.target.value)}} required />
-                    <span>Date (YYYY-MM-DD)</span>
-                </div>
-                <Button color={'green'} onClick={getAvailableTimes}>
-                        Get available times
-                    </Button>
-                <p>Invitees availability to event will be displayed once a date is chosen</p>
-                <Select name="Rooms" class = "ui search dropdown"
-                    placeholder = "Select a room"
-                    search
-                    options={availableRooms}
-                    onChange={switchAvailableRoom}
-                    style={{marginBottom: "1em"}}
-                />
-
-                <p/>
-                <p/>
-                <div className="input_field">
-                    <input type="text"autoComplete="off" onChange={setNewEventStartTime} required />
-                    <span>Start Time (HH:MM:SS)</span>
-                </div>
-                <div className="input_field">
-                    <input type="text"autoComplete="off" onChange={setNewEventEndTime} required />
-                    <span>End Time (HH:MM:SS)</span>
-                </div>
-    
-                <div className="submit_button">
-                    <span className="warning">{warningText}</span>
-                    <button 
-                    color="green" 
-                    onClick={makeEvent}>Create event</button>
-                    <p/>
-                    <button onClick={() => {setOpen(false); setWarningText("")}} color="green">CLOSE</button>
-                </div>
-                
-    
-            </div>
-        </div>
+            </Form.Field>
+        </Form>
+            <Modal.Actions>
+                <Button onClick={deleteInvitees} color="red">DELETE INVITEES</Button>
+                <Button onClick={() => setShowModify(false)} color="grey">CLOSE</Button>
+            </Modal.Actions>
         </Modal>
-        <Container fluid>
-        <Button
-            fluid
-            color = {'green'}
-            onClick={() => {setOpen(true)}}
-        > Book Meeting </Button>
-        <Button
-            fluid
-            color={'black'}
-            onClick={markTime}
-            >Mark time as unavailable</Button>
-    </Container>
-    </Container>
-
-
+    </Container >
+    );
 }
 export default BookMeeting;
