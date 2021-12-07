@@ -39,11 +39,11 @@ function BookMeeting(){
     const [sucessText, setSucessText] = useState("");
     const [selectedEventID, setSelectedEventID] = useState();
     const [warningText, setWarningText] = useState("");
-    const [inputName, setInputName] = useState("");
-    const [description, setDescription] = useState("");
-    const [newEventStartTime, setNewEventStartTime] = useState("");
-    const [newEventEndTime, setNewEventEndTime] = useState("");
-    const [newEventDate, setNewEventDate] = useState("");
+    const [newEventName, setNewEventName] = useState();
+    const [newEventDesc, setNewEventDesc] = useState();
+    const [newEventStartTime, setNewEventStartTime] = useState();
+    const [newEventEndTime, setNewEventEndTime] = useState();
+    const [newEventDate, setNewEventDate] = useState();
     const [emails, setEmails] = useState("");
     const [availableTimes, setAvailableTimes] = useState("");
     const [eventInvitees, setEventInvitees] = useState("");
@@ -199,6 +199,7 @@ function BookMeeting(){
     }
 
     const deleteEvent = () => {
+        setWarningText("");
         let sched_ID;
         let e_info = parseFromDate(selected.start, selected.end);
         console.log(rawSchedules)
@@ -314,17 +315,38 @@ function BookMeeting(){
     }
 
     const makeEvent = () => {
-        let param = {
-
+        setWarningText("");
+        let inv = [];
+        for(let i = 0; i < eventInvitees.length; i++){
+            inv.push(parseInt(eventInvitees[i].value));        
         }
+        inv.push(user.user_id);
+        // console.log(newEventDate);
+        // console.log(newEventName.target.value);
+        // console.log(newEventDesc.target.value);
+        let data = {
+            "schedule_start_time": newEventStartTime.target.value,
+            "schedule_end_time": newEventEndTime.target.value,
+            "schedule_date": newEventDate,
+            "invitees": inv,
+            "user_id": user.user_id,
+            "room_id": selectedRoom.value,
+            "schedule_name": newEventName.target.value,
+            "schedule_description": newEventDesc.target.value
+        }
+        console.log(data);
         axios({
             method: 'POST',
-            params: param,
-            url: available_url
+            data: data,
+            url: CONFIG.URL + "/schedule",
+            headers: {'Content-Type': 'application/json'}
         })
         .then((res) => {
-            setAvailableTimes(res.data);
-            //console.log(res.data)
+            setTimeout(() => {window.location.reload()}, 2500);
+        })
+        .catch((err)=>{
+            console.log(err)
+            setWarningText("Form is wrongly filled. Please check the information again.")
         })
     }
 
@@ -385,11 +407,11 @@ function BookMeeting(){
                     <span className="success">{sucessText}</span>
                 </div>
                 <div className="input_field">
-                    <input type="text"autoComplete="off" onChange={setInputName} required />
+                    <input type="text"autoComplete="off" onChange={setNewEventName} required />
                     <span>Name of event</span>
                 </div>
                 <div className="input_field">
-                    <input type="text"autoComplete="off" onChange={setDescription} required />
+                    <input type="text"autoComplete="off" onChange={setNewEventDesc} required />
                     <span>Description of event</span>
                 </div>
 
@@ -439,10 +461,14 @@ function BookMeeting(){
                 </div>
     
                 <div className="submit_button">
+                    <span className="warning">{warningText}</span>
                     <button 
                     color="green" 
                     onClick={makeEvent}>Create event</button>
+                    <p/>
+                    <button onClick={() => {setOpen(false); setWarningText("")}} color="green">CLOSE</button>
                 </div>
+                
     
             </div>
         </div>

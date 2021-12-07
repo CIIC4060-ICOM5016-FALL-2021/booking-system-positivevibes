@@ -139,8 +139,11 @@ function Profile() {
                 window.location.href = window.location.origin+"/Home"
             }, 2000);
         })
-        .catch((err) => console.log(err))
-        setWarningText("User is invited to a meeting or has an unavailable timeframe.")
+        .catch((err) => {
+            console.log(err)
+            setWarningText("User is invited to a meeting or has an unavailable timeframe.")
+        })
+        
     }
 
      
