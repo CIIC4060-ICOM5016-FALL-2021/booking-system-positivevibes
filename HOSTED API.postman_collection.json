@@ -95,7 +95,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://posvibes-db.herokuapp.com/API/users/1",
+							"raw": "https://posvibes-db.herokuapp.com/API/users/14",
 							"protocol": "https",
 							"host": [
 								"posvibes-db",
@@ -105,7 +105,7 @@
 							"path": [
 								"API",
 								"users",
-								"1"
+								"14"
 							]
 						}
 					},
@@ -166,7 +166,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"user_id\" : \"2\",\r\n    \"user_start_time\" : \"07:00:00\",\r\n    \"user_end_time\" : \"03:00:00\",\r\n    \"user_date\" : \"2021-11-07\"\r\n}",
+							"raw": "{\r\n    \"user_id\" : \"8\",\r\n    \"user_start_time\" : \"07:00:00\",\r\n    \"user_end_time\" : \"03:00:00\",\r\n    \"user_date\" : \"2021-11-07\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -196,7 +196,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"user_unavail_id\" : \"\",\r\n    \"user_id\" : \"1\",\r\n    \"user_start_time\" : \"7:00 AM\",\r\n    \"user_end_time\" : \"3:00 PM\",\r\n    \"user_date\" : \"2021-11-06\"\r\n}",
+							"raw": "{\r\n    \"user_unavail_id\" : \"\",\r\n    \"user_id\" : \"1\",\r\n    \"user_start_time\" : \"7:00 AM\",\r\n    \"user_end_time\" : \"3:00 PM\",\r\n    \"user_date\" : \"2021-11-06\",\r\n    \"scheduled\" : \"0\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -247,7 +247,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "https://posvibes-db.herokuapp.com/API/user_unavailability/3",
+							"raw": "https://posvibes-db.herokuapp.com/API/user_unavailability/220",
 							"protocol": "https",
 							"host": [
 								"posvibes-db",
@@ -257,7 +257,7 @@
 							"path": [
 								"API",
 								"user_unavailability",
-								"3"
+								"220"
 							]
 						}
 					},
@@ -426,7 +426,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"room_capacity\": \"50\",\r\n    \"authorization_level\": \"1\",\r\n    \"building_id\": \"1\"\r\n}",
+							"raw": "{\r\n    \"room_capacity\": \"50\",\r\n    \"authorization_level\": \"1\",\r\n    \"building_id\": \"1\",\r\n    \"room_name\": \"S-223\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -456,7 +456,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"room_id\": \"1\",\r\n    \"room_capacity\": \"20\",\r\n    \"authorization_level\": \"1\",\r\n    \"building_id\": \"5\"\r\n}",
+							"raw": "{\r\n    \"room_id\": \"1\",\r\n    \"room_capacity\": \"20\",\r\n    \"authorization_level\": \"1\",\r\n    \"building_id\": \"5\",\r\n    \"room_name\": \"S-223\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -556,7 +556,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"room_id\": 2,\r\n    \"room_unavail_date\": \"2021-12-15\",\r\n    \"room_start_time\": \"08:00:00\",\r\n    \"room_end_time\": \"10:00:00\"\r\n}",
+							"raw": "{\r\n    \"room_id\": 2,\r\n    \"room_unavail_date\": \"2022-01-06\",\r\n    \"room_start_time\": \"08:00:00\",\r\n    \"room_end_time\": \"10:00:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -586,7 +586,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"room_unavail_id\": \"1\",\r\n    \"room_id\": \"1\",\r\n    \"room_unavail_date\": \"2021-11-05\",\r\n    \"room_start_time\": \"15:40\",\r\n    \"room_end_time\": \"17:40\"\r\n}",
+							"raw": "{\r\n    \"room_unavail_id\": \"1\",\r\n    \"room_id\": \"1\",\r\n    \"room_unavail_date\": \"2021-11-05\",\r\n    \"room_start_time\": \"15:40\",\r\n    \"room_end_time\": \"17:40\",\r\n    \"scheduled\": \"0\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -686,7 +686,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"schedule_start_time\":\"02:30:00\",\r\n    \"schedule_end_time\": \"04:00:00\",\r\n    \"schedule_date\": \"2021-11-09\",\r\n    \"invitees\": [2, 4, 5, 11],\r\n    \"user_id\": 4,\r\n    \"room_id\": 1\r\n}",
+							"raw": "{\r\n    \"schedule_start_time\":\"12:00:00\",\r\n    \"schedule_end_time\": \"14:00:00\",\r\n    \"schedule_date\": \"2021-11-25\",\r\n    \"invitees\": [8, 9, 15, 16],\r\n    \"user_id\": 8,\r\n    \"room_id\": 2,\r\n    \"schedule_name\": \"xMas Party\",\r\n    \"schedule_description\": \"Worthy of not being with the Mario Brothers!\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -716,7 +716,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"schedule_id\":1,\r\n    \"schedule_start_time\":\"15:30\",\r\n    \"schedule_end_time\": \"20:30:00\",\r\n    \"schedule_date\": \"2020-03-20\",\r\n    \"user_id\": 2,\r\n    \"room_id\": 1\r\n}",
+							"raw": "{\r\n    \"schedule_id\":73,\r\n    \"schedule_start_time\":\"04:30\",\r\n    \"schedule_end_time\": \"06:00:00\",\r\n    \"schedule_date\": \"2021-11-20\",\r\n    \"user_id\": 6,\r\n    \"room_id\": 4,\r\n    \"schedule_name\": \"Mario's big idea\",\r\n    \"schedule_description\": \"Mario will be discussing his plan to climb higher into power and bring sorrow to the world.\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -921,6 +921,29 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "/invitee/schedule/sched_id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/API/invitee/schedule/99",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"API",
+								"invitee",
+								"schedule",
+								"99"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -936,7 +959,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://posvibes-db.herokuapp.com/API/users/statistics/13/room",
+									"raw": "https://posvibes-db.herokuapp.com/API/users/statistics/14/room",
 									"protocol": "https",
 									"host": [
 										"posvibes-db",
@@ -947,7 +970,7 @@
 										"API",
 										"users",
 										"statistics",
-										"13",
+										"14",
 										"room"
 									]
 								}
@@ -960,7 +983,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://posvibes-db.herokuapp.com/API/users/statistics/13/user",
+									"raw": "https://posvibes-db.herokuapp.com/API/users/statistics/14/user",
 									"protocol": "https",
 									"host": [
 										"posvibes-db",
@@ -971,7 +994,7 @@
 										"API",
 										"users",
 										"statistics",
-										"13",
+										"14",
 										"user"
 									]
 								}
@@ -1214,23 +1237,11 @@
 				},
 				{
 					"name": "2. Find an available room at a time frame",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"date\" : \"2021-11-05\",\r\n    \"start_time\" : \"09:10:00\",\r\n    \"end_time\" : \"10:00:00\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "https://posvibes-db.herokuapp.com/API/rooms/availability",
+							"raw": "https://posvibes-db.herokuapp.com/API/rooms/availability?date=2021-11-05&start_time=09:10:00&end_time=10:00:00",
 							"protocol": "https",
 							"host": [
 								"posvibes-db",
@@ -1241,6 +1252,20 @@
 								"API",
 								"rooms",
 								"availability"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "2021-11-05"
+								},
+								{
+									"key": "start_time",
+									"value": "09:10:00"
+								},
+								{
+									"key": "end_time",
+									"value": "10:00:00"
+								}
 							]
 						}
 					},
@@ -1248,23 +1273,11 @@
 				},
 				{
 					"name": "3. Find who appointed a room at a certain time",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"room_id\" : \"2\",\r\n    \"user_id\" : \"11\",\r\n    \"date\" : \"2021-11-26\",\r\n    \"time\" : \"13:30:00\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "https://posvibes-db.herokuapp.com/API/rooms/appointed",
+							"raw": "https://posvibes-db.herokuapp.com/API/rooms/appointed?room_id=2&date=2021-12-25&time=13:30:00",
 							"protocol": "https",
 							"host": [
 								"posvibes-db",
@@ -1275,6 +1288,20 @@
 								"API",
 								"rooms",
 								"appointed"
+							],
+							"query": [
+								{
+									"key": "room_id",
+									"value": "2"
+								},
+								{
+									"key": "date",
+									"value": "2021-12-25"
+								},
+								{
+									"key": "time",
+									"value": "13:30:00"
+								}
 							]
 						}
 					},
@@ -1290,7 +1317,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"room_id\" : \"1\",\r\n    \"user_id\" : \"4\",\r\n    \"date\" : \"2021-11-05\"\r\n}",
+							"raw": "{\r\n    \"room_id\" : \"1\",\r\n    \"user_id\" : \"14\",\r\n    \"date\" : \"2021-11-16\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1298,7 +1325,7 @@
 							}
 						},
 						"url": {
-							"raw": "https://posvibes-db.herokuapp.com/API/rooms/schedule",
+							"raw": "https://posvibes-db.herokuapp.com/API/rooms/schedule?room_id=44&user_id=14&date=2021-12-19",
 							"protocol": "https",
 							"host": [
 								"posvibes-db",
@@ -1309,6 +1336,56 @@
 								"API",
 								"rooms",
 								"schedule"
+							],
+							"query": [
+								{
+									"key": "room_id",
+									"value": "44"
+								},
+								{
+									"key": "user_id",
+									"value": "14"
+								},
+								{
+									"key": "date",
+									"value": "2021-12-19"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.1 Give an all-time schedule for room",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/API/rooms/schedule?room_id=2&user_id=14&date=none",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"API",
+								"rooms",
+								"schedule"
+							],
+							"query": [
+								{
+									"key": "room_id",
+									"value": "2"
+								},
+								{
+									"key": "user_id",
+									"value": "14"
+								},
+								{
+									"key": "date",
+									"value": "none"
+								}
 							]
 						}
 					},
@@ -1316,23 +1393,11 @@
 				},
 				{
 					"name": "5. Give an all-day schedule for a user",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"user_id\": \"2\",\r\n    \"date\": \"2021-11-05\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "https://posvibes-db.herokuapp.com/API/users/schedule",
+							"raw": "https://posvibes-db.herokuapp.com/API/users/schedule?user_id=7&date=2021-12-25",
 							"protocol": "https",
 							"host": [
 								"posvibes-db",
@@ -1343,6 +1408,48 @@
 								"API",
 								"users",
 								"schedule"
+							],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "7"
+								},
+								{
+									"key": "date",
+									"value": "2021-12-25"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.1 Give an all-time schedule for an user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://posvibes-db.herokuapp.com/API/users/schedule?user_id=7&date=none",
+							"protocol": "https",
+							"host": [
+								"posvibes-db",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"API",
+								"users",
+								"schedule"
+							],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "7"
+								},
+								{
+									"key": "date",
+									"value": "none"
+								}
 							]
 						}
 					},
@@ -1403,23 +1510,11 @@
 				},
 				{
 					"name": "8. Find a time that is free for everyone in the meeting",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"date\" : \"2021-11-05\",\r\n    \"duration\" : \"02:00:00\",\r\n    \"invitees\" : [3, 11]\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "https://posvibes-db.herokuapp.com/API/schedule/available",
+							"raw": "https://posvibes-db.herokuapp.com/API/schedule/available?date=2021-12-24&invitees=6,11",
 							"protocol": "https",
 							"host": [
 								"posvibes-db",
@@ -1430,6 +1525,16 @@
 								"API",
 								"schedule",
 								"available"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "2021-12-24"
+								},
+								{
+									"key": "invitees",
+									"value": "6,11"
+								}
 							]
 						}
 					},
