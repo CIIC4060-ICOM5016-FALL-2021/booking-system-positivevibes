@@ -43,6 +43,7 @@ function Profile() {
     }
 
     const changeFirstName = () => {
+        if(uFirstName == "") return;
         let newUser = {
             user_id: user.user_id,
             first_name: uFirstName,
@@ -64,6 +65,7 @@ function Profile() {
     };
     
     const changeLastName = () => {
+        if(uLastName == "") return;
         let newUser = {
             user_id: user.user_id,
             first_name: user.first_name,
@@ -85,6 +87,7 @@ function Profile() {
     };
     
     const changeEmail = () => {
+        if(uEmail == "" || !uEmail.includes('@')) return;
         let newUser = {
             user_id: user.user_id,
             first_name: user.first_name,
@@ -106,6 +109,7 @@ function Profile() {
     };
 
     const changePassword = () => {
+        if(uPassword == "") return;
         let newUser = {
             user_id: user.user_id,
             first_name: user.first_name,
@@ -233,6 +237,7 @@ function Profile() {
                                     />
                                     }
                                     name="uEmail"
+                                    type='email'
                                     onChange={inputField}
                                     placeholder='New Email'
                                     type="email"
