@@ -291,8 +291,8 @@ function BookMeeting(){
             inv += eventInvitees[i].value +",";        
         }
         inv += user.user_id.toString();
-        console.log(newEventDate)
-        console.log(inv);
+        // console.log(newEventDate)
+        // console.log(inv);
         let param = {
             date : newEventDate,
             invitees : inv
