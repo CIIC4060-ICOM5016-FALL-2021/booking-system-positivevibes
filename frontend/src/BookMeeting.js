@@ -1,9 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useReducer, useState} from 'react';
 import {Calendar, momentLocalizer} from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
-import {Button, Container, Modal} from "semantic-ui-react";
+import {Button, Container, Modal, Dropdown} from "semantic-ui-react";
 import axios from 'axios';
+import Select from 'react-select';
 
 import CONFIG from './config';
 import { parseFromDate } from './functions/DateChange';
@@ -14,6 +15,9 @@ const authDictionary = {
     "2": "Department Staff"
 }
 
+//const invitee_url = CONFIG.URL + '/invitee';
+const user_url = CONFIG.URL + '/users';
+const available_url = CONFIG.URL + '/schedule/available';
 const room_url = CONFIG.URL + '/rooms';
 const unavail_url = CONFIG.URL + '/user_unavailability';
 const sched_url = CONFIG.URL + '/users/schedule';
@@ -35,6 +39,16 @@ function BookMeeting(){
     const [sucessText, setSucessText] = useState("");
     const [selectedEventID, setSelectedEventID] = useState();
     const [warningText, setWarningText] = useState("");
+    const [inputName, setInputName] = useState("");
+    const [description, setDescription] = useState("");
+    const [newEventStartTime, setNewEventStartTime] = useState("");
+    const [newEventEndTime, setNewEventEndTime] = useState("");
+    const [newEventDate, setNewEventDate] = useState("");
+    const [emails, setEmails] = useState("");
+    const [availableTimes, setAvailableTimes] = useState("");
+    const [eventInvitees, setEventInvitees] = useState("");
+    const [availableRooms, setAvailableRooms] = useState([]);
+
 
     useEffect(() => {
         setUserDates([]);
@@ -83,6 +97,32 @@ function BookMeeting(){
         .then((res) => {setRawSchedules(res.data)}); 
         axios({method: 'GET', url: CONFIG.URL + '/invitee'})
         .then((res) => setAllInvitees(res.data));
+        axios({method: 'GET', url: user_url})
+        .then((res) => {
+            let email_list = []
+            for(let i = 0; i < res.data.length; i++) {
+                if(res.data[i].user_id == user.user_id) continue;
+                email_list.push({
+                    label: res.data[i].user_email,
+                    value: res.data[i].user_id,
+                })
+            };
+            setEmails(email_list);
+        });
+        axios({method: 'GET', url: room_url})
+        .then((res) => {
+            let room_list = []
+            for(let i = 0; i < res.data.length; i++) {
+                if(res.data[i].authorization_level <= user.authorization_level){
+                    room_list.push({
+                    label: res.data[i].room_name,
+                    value: res.data[i].room_id,
+                    //authorization_level: res.data[i].authorization_level,
+                })
+                }
+            };
+            setAvailableRooms(room_list);
+        });
     }, []);
 
 
@@ -244,6 +284,50 @@ function BookMeeting(){
         
     }
 
+    const getAvailableTimes = () =>{
+        setAvailableTimes("")
+        let inv = "";
+        for(let i = 0; i < eventInvitees.length; i++){
+            inv += eventInvitees[i].value +",";        
+        }
+        inv += user.user_id.toString();
+        console.log(newEventDate)
+        console.log(inv);
+        let param = {
+            date : newEventDate,
+            invitees : inv
+        }
+        axios({
+            method: 'GET',
+            params: param,
+            url: available_url
+        })
+        .then((res) => {
+            setAvailableTimes(res.data);
+            //console.log(res.data)
+        })
+    }
+
+    const switchAvailableRoom = (selected) => {
+        setSelectedRoom(selected);
+        //setTimeout(() => {}, 250);
+    }
+
+    const makeEvent = () => {
+        let param = {
+
+        }
+        axios({
+            method: 'POST',
+            params: param,
+            url: available_url
+        })
+        .then((res) => {
+            setAvailableTimes(res.data);
+            //console.log(res.data)
+        })
+    }
+
         return <Container style={{ height: 800 }}>
        < Calendar
             selectable
@@ -293,19 +377,80 @@ function BookMeeting(){
             onClose={() => setOpen(false)}
             onOpen={() => setOpen(true)}
         >
-            <Modal.Header>Needs changing!</Modal.Header>
-            <Modal.Content>
-                <Modal.Description>
-                    This is a modal but it serves to show how buttons and functions can be implemented.
-                </Modal.Description>
-            </Modal.Content>
-            <Modal.Actions>
-                <Button onClick={() => setOpen(false)}>OK</Button>
-            </Modal.Actions>
+            <div className="wrapper">
+            <div className="card">
+                <div className="heading">
+                    <h4>Create event</h4>
+                    <span className="warning">{warningText}</span>
+                    <span className="success">{sucessText}</span>
+                </div>
+                <div className="input_field">
+                    <input type="text"autoComplete="off" onChange={setInputName} required />
+                    <span>Name of event</span>
+                </div>
+                <div className="input_field">
+                    <input type="text"autoComplete="off" onChange={setDescription} required />
+                    <span>Description of event</span>
+                </div>
+
+                <span>Users to invite</span>
+                <Select name="Rooms" class = "ui search dropdown"
+                    search
+                    isMulti = {true}
+                    options={emails}
+                    onChange = {(event) => {setEventInvitees(event)}}
+                    style={{marginBottom: "1em"}}
+                />
+
+                {/* <Dropdown 
+                placeholder='Whom shall we invite?' 
+                fluid
+                multiple
+                search
+                selection
+                options={emails} /> */}
+                <p/>
+                <p/>
+                <div className="input_field">
+                    <input type="text"autoComplete="off" onChange={(event)=>{setNewEventDate(event.target.value)}} required />
+                    <span>Date (YYYY-MM-DD)</span>
+                </div>
+                <Button color={'green'} onClick={getAvailableTimes}>
+                        Get available times
+                    </Button>
+                <p>Invitees availability to event will be displayed once a date is chosen</p>
+                <Select name="Rooms" class = "ui search dropdown"
+                    placeholder = "Select a room"
+                    search
+                    options={availableRooms}
+                    onChange={switchAvailableRoom}
+                    style={{marginBottom: "1em"}}
+                />
+
+                <p/>
+                <p/>
+                <div className="input_field">
+                    <input type="text"autoComplete="off" onChange={setNewEventStartTime} required />
+                    <span>Start Time (HH:MM:SS)</span>
+                </div>
+                <div className="input_field">
+                    <input type="text"autoComplete="off" onChange={setNewEventEndTime} required />
+                    <span>End Time (HH:MM:SS)</span>
+                </div>
+    
+                <div className="submit_button">
+                    <button 
+                    color="green" 
+                    onClick={makeEvent}>Create event</button>
+                </div>
+    
+            </div>
+        </div>
         </Modal>
         <Container fluid>
         <Button
             fluid
+            color = {'green'}
             onClick={() => {setOpen(true)}}
         > Book Meeting </Button>
         <Button
