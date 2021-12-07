@@ -196,12 +196,13 @@ function Profile() {
                         
                         <Popup
                             content={
-                                <Input
-                                    icon={<Icon name='check circle'
-                                        inverted
-                                        circular 
-                                        link 
-                                        onClick={changeLastName}
+                                    <Input
+                                        type="text"
+                                        icon={<Icon name='check circle'
+                                            inverted
+                                            circular 
+                                            link 
+                                            onClick={changeLastName}
                                     />
                                     }
                                     name="lastName"
@@ -234,6 +235,7 @@ function Profile() {
                                     name="uEmail"
                                     onChange={inputField}
                                     placeholder='New Email'
+                                    type="email"
                                 />
                             }
                             on='click'

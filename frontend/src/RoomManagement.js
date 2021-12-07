@@ -2,7 +2,7 @@ import React, {Component, useEffect, useState} from 'react';
 import {Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
-import {Button, Card, Container, Modal, Divider, Dropdown, Segment, Popup, Label} from "semantic-ui-react";
+import {Button, Card, Container, Modal, Divider, Dropdown, Segment, Popup, Label, Header} from "semantic-ui-react";
 import axios from 'axios';
 import Select from 'react-select';
 
@@ -344,11 +344,11 @@ function BookMeeting(){
         />
                 </Segment>
                 <Divider />
-                <span className="success">Authorization Level: {authLvlText}</span>
+                <label className="success">Authorization Level: {authLvlText}</label>
                 <p/>
                  <Popup
                     content='First select a room from the dropdown
-                    and then click the select button to select the room'
+                    and then click the select button to select the room.'
                     position='left center'
                     trigger={
                         <Button
@@ -360,7 +360,7 @@ function BookMeeting(){
                 />
                 <Popup
                     content='First select a room from the dropdown
-                    and then click the mark button to mark the room as unavailable'
+                    and then select a date and time to mark the room as unavailable.'
                     position='right center'
                     trigger={
                         <Button
@@ -371,7 +371,7 @@ function BookMeeting(){
                     </Button>}
                 />
                 <Popup
-                    content='After selecting a room, click delete to delete the room'
+                    content='After selecting a room, click delete to delete the room.'
                     position='right center'
                     trigger={
                          <Button
@@ -382,8 +382,8 @@ function BookMeeting(){
                         Delete Room
                     </Button>}
                 />   
-        <span className="warning">{warningText}</span>
-        <span className="success">{sucessText}</span>
+        <label className="warning">{warningText}</label>
+        <label className="success">{sucessText}</label>
         <Divider />
     </Container>
             
@@ -422,13 +422,26 @@ function BookMeeting(){
             onClose={() => setShowModify(false)}
             onOpen={() => setShowModify(true)}
         >
-            <Modal.Header>{user.user_name}</Modal.Header>
-                <Modal.Content>Scheduled by: {appointedRoom.user_first_name+' '+appointedRoom.user_last_name}</Modal.Content>
-                <Modal.Content>{inviteeEmails == "" ? "" : `Invited users: ${inviteeEmails}`}</Modal.Content>
+            <Modal.Header>Event Information</Modal.Header>
+                    <Modal.Content>
+                        <Header>Scheduled by:</Header>
+                        <Modal.Description>
+                            {
+                                appointedRoom.user_first_name + ' ' + appointedRoom.user_last_name
+                            }
+                        </Modal.Description>
+                        <Header>Invited People:</Header>
+                        <Modal.Description>
+                            {
+                                inviteeEmails == "" ? "" : `${inviteeEmails}`
+                            }
+                        </Modal.Description>
+                    </Modal.Content>
                 <Modal.Actions>
                     <Button onClick={deleteEvent} color="red">Delete Event</Button>
                     <Button onClick={() => setShowModify(false)} color="green">CLOSE</Button>
-            </Modal.Actions>
+                </Modal.Actions>
+           
         </Modal>
 
         <Modal

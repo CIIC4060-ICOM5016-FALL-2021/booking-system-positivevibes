@@ -2,7 +2,7 @@ import React, {useEffect, useReducer, useState} from 'react';
 import {Calendar, momentLocalizer} from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
-import {Button, Container, Modal, Dropdown, Divider, Form, Message, Label, Popup, Header} from "semantic-ui-react";
+import {Button, Container, Modal, Dropdown, Divider, Form, Message, Label, Popup, Header, List} from "semantic-ui-react";
 import axios from 'axios';
 import Select from 'react-select';
 import './BookMeeting.css';
@@ -477,7 +477,7 @@ function BookMeeting(){
     }
 
     return (
-    <Container style={{ height: 800 }}>
+    <Container style={{height:"800px"}}>
         <Container fluid style={{alignItems:"center", justifyContent:"center"}}>
             <Button 
                 color = {'green'}
@@ -516,49 +516,51 @@ function BookMeeting(){
                 height: "fit-content",
                 width: "fit-content",
                 marginLeft: "25%",
-                marginTop:"10%",
+                marginTop:"5%",
             }}
             open={showEvent}
             dimmer={'blurring'}
             onClose={() => setShowEvent(false)}
             onOpen={() => setShowEvent(true)}
         >
-            <Modal.Header>{user.user_name}</Modal.Header>
+            <Modal.Header>Event Information</Modal.Header>
                 <Modal.Content>
                     <Modal.Description>
-                        <p>
+                        <Header>Event Name:</Header>
+                        <code style={{color:"black"}}>
                             {
-                                currEvent == {} ? "" : `Event Name: ${currEvent.schedule_name}`
+                                currEvent == {} ? "" : `${currEvent.schedule_name}`
                             }
-                        </p>
+                        </code>
                     </Modal.Description>
-                </Modal.Content>
-                <Modal.Content>
+                    <Divider/>
                     <Modal.Description>
-                        <p>
+                        <Header>Event Description:</Header>
+                        <code style={{color:"black"}}>
                             {
-                                currEvent == {} ? "" : `Event Description: ${currEvent.schedule_description}`
+                                currEvent == {} ? "" : `${currEvent.schedule_description}`
                             }
-                        </p>
+                        </code>
                     </Modal.Description>
-                </Modal.Content>        
-                <Modal.Content>
+                    <Divider/>
                     <Modal.Description>
                         <Header>Scheduled by:</Header>
-                        <p>
+                        <code style={{color:"black"}}>
                             {    
                                 appointedRoom.user_first_name + ' ' + appointedRoom.user_last_name
                             }   
-                        </p>
+                        </code>
                     </Modal.Description>
-                </Modal.Content>
-                <Modal.Content>
+                    <Divider/>
                     <Modal.Description>
-                        <p>
-                            {  
-                            inviteeEmails == "" ? "" : `Invited users: ${inviteeEmails}`
-                            }
-                        </p>
+                        <Header>Invited users:</Header>
+                        <List horizontal>
+                            <List.Item as='a'>
+                                {  
+                                    inviteeEmails == "" ? "" : `${inviteeEmails}`
+                                }
+                            </List.Item>
+                        </List>
                     </Modal.Description>
                 </Modal.Content>
                 <label className="warning">{warningText}</label>
@@ -578,7 +580,7 @@ function BookMeeting(){
             style={{marginLeft:"15%"}}
             >
         <Modal.Header>
-           Create event
+           Create Event
         </Modal.Header>
         <Modal.Content>
            
@@ -698,20 +700,19 @@ function BookMeeting(){
     </Modal>
 
     <Modal
-        centered={false}
-        size={'small'}
         style={{
+            marginLeft: "15%",
+            marginTop: "1%",
             height: "auto",
-            width: "auto",
-            marginLeft: "25%",
-            marginTop:"10%",
+            padding:"1rem",
         }}
         open={showModify}
         dimmer={'blurring'}
         onClose={() => setShowModify(false)}
         onOpen={() => setShowModify(true)}
         >
-        <Modal.Header>{user.user_name}</Modal.Header>
+        <Modal.Header>Modify Event</Modal.Header>
+        <Modal.Content>
         <Form>
             <Form.Field>
                 <label>Name of Event</label>
@@ -733,11 +734,10 @@ function BookMeeting(){
                     required
                     placeholder="Description of Event"/>
             </Form.Field>
-        </Form>
-        <Modal.Actions>
-            <Button onClick={modifyEventSubmit} color="orange">Modify Event</Button>            
-        </Modal.Actions>
-        <Form>
+            <Form.Field>
+                <Button onClick={modifyEventSubmit} color="orange">Modify Event</Button> 
+            </Form.Field>
+            <Message>Modify Event only modifies the event, does not delete invitees.</Message>            
             <Form.Field>
                 <label>Invitees to remove</label>
                 <Select name="Invitees" 
@@ -750,12 +750,14 @@ function BookMeeting(){
                     placeholder="Select users to invite..."
                 />
             </Form.Field>
-        </Form>
-            <Modal.Actions>
+            <Form.Field>
                 <Button onClick={deleteInvitees} color="red">DELETE INVITEES</Button>
                 <Button onClick={() => setShowModify(false)} color="grey">CLOSE</Button>
-            </Modal.Actions>
-        </Modal>
+            </Form.Field>
+            <Message>Delete Invitees deletes invitees only.</Message> 
+        </Form>
+        </Modal.Content>
+    </Modal>
     </Container >
     );
 }
