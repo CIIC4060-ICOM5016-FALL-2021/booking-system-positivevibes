@@ -198,6 +198,10 @@ function BookMeeting(){
         
     }
 
+    const modifyEvent = () =>{
+        
+    }
+
     const deleteEvent = () => {
         setWarningText("");
         let sched_ID;
@@ -387,7 +391,7 @@ function BookMeeting(){
                 <Modal.Content>Scheduled by: {appointedRoom.user_first_name+' '+appointedRoom.user_last_name}</Modal.Content>
                 <Modal.Content>{inviteeEmails == "" ? "" : `Invited users: ${inviteeEmails}`}</Modal.Content>
                 <Modal.Actions>
-                    <Button onClick={deleteEvent} color="orange">Modify Event</Button>
+                    <Button onClick={modifyEvent} color="orange">Modify Event</Button>
                     <Button onClick={deleteEvent} color="red">Delete Event</Button>
                     <span className="warning">{warningText}</span>
                     <Button onClick={() => setShowModify(false)} color="green">CLOSE</Button>
