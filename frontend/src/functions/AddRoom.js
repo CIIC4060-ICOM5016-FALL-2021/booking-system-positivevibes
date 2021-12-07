@@ -58,18 +58,13 @@ function AddRoom() {
 
     //(room_capacity, authorization_level, building_id, room_name)
     const addRoom = () => {
-        console.log("Building ID: \n")
-        console.log(buildingId)
-        console.log("Auth : \n")
-        console.log(AuthLevel)
-        if(roomCapacity && AuthLevel && buildingId && roomName){
+        if(roomCapacity.length > 0 && AuthLevel.toString().length > 0 && buildingId.toString().length > 0 && roomName.length > 0){
             let room = {
                 room_capacity: roomCapacity,
                 authorization_level: AuthLevel,
                 building_id: buildingId,
                 room_name: roomName,
             };
-
             axios({
                 method: 'POST',
                 url: room_url,
