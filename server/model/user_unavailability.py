@@ -1,4 +1,5 @@
 from config.dbconfig import pg_config
+from controllers.schedule import Schedule
 import psycopg2
 
 class UserUnavailabilityDAO():
@@ -40,8 +41,18 @@ class UserUnavailabilityDAO():
 
     def deleteUnavailableUser(self, user_unavail_id):
         cursor = self.conn.cursor()
-        query = "delete from user_unavailability where user_unavail_id=%s"
+        query = "select scheduled from user_unavailability where user_unavail_id = %s"
         cursor.execute(query, (user_unavail_id,))
-        affected_rows = cursor.rowcount
-        self.conn.commit()
-        return affected_rows != 0
+        scheduled = cursor.fetchone()[0]
+        if scheduled == 0:
+            query = "delete from user_unavailability where user_unavail_id=%s"
+            cursor.execute(query, (user_unavail_id,))
+            affected_rows = cursor.rowcount
+            self.conn.commit()
+            return affected_rows != 0
+        else:
+            query = "select schedule_id from (user_unavailability as uu natural inner join invitee) inner join schedule as s using (schedule_id) where uu.user_start_time = s.schedule_start_time and uu.user_end_time = s.schedule_end_time and uu.user_date = s.schedule_date and uu.user_unavail_id = %s"
+            cursor.execute(query, (user_unavail_id,))
+            sched_id = cursor.fetchone()[0]
+            return Schedule().deleteSchedule(sched_id)
+            
